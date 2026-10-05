@@ -51,7 +51,7 @@ def test_calibration_reads_runs_and_excludes_non_scientific_by_default(tmp_path)
     db = f"sqlite:///{tmp_path / 'reg.db'}"
     evaluate(
         Path.cwd(),
-        "canary",
+        "demo",
         efforts=["xhigh"],
         source="gold",
         tracks=["model_only"],
@@ -65,7 +65,7 @@ def test_calibration_reads_runs_and_excludes_non_scientific_by_default(tmp_path)
     assert len(run_ids) == 1
     assert load_rows(store, run_ids) == []
     report = calibrate_rows(load_rows(store, run_ids, scientific_only=False), min_attempts=1)
-    assert len(report["tasks"]) == 10
+    assert len(report["tasks"]) == 2
     assert all(item["verdict"] == "too_easy" for item in report["tasks"])
 
     out = tmp_path / "cal.json"

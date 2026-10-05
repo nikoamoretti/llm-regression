@@ -25,7 +25,7 @@ def test_dashboard_shows_strict_results_and_quality_side_by_side(tmp_path, monke
     monkeypatch.setenv("LLMREG_ALLOW_HOST", "1")
     monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", "test-token")
     monkeypatch.delenv("CLAUDE_FAKE_SCENARIO", raising=False)
-    task = select_tasks(ROOT / "tasks", ["BUG-PY-01"])[0]
+    task = select_tasks(ROOT / "tasks", ["DEMO-PY-01"])[0]
     monkeypatch.setenv("CLAUDE_FAKE_PATCH", str(task.gold_patch.resolve()))
     db = tmp_path / "reg.db"
     store = Store(f"sqlite:///{db}")
@@ -45,10 +45,10 @@ def test_dashboard_shows_strict_results_and_quality_side_by_side(tmp_path, monke
         attempt_id = conn.execute(text("SELECT attempt_id FROM attempts")).scalar()
     scores = {name: 4 for name in judge.DIMENSIONS}
     # Only the current judge's scores are shown; another judge's would not be comparable.
-    judge.record(store, attempt_id=attempt_id, subject="attempt", task_key="BUG-PY-01", model="other-judge",
+    judge.record(store, attempt_id=attempt_id, subject="attempt", task_key="DEMO-PY-01", model="other-judge",
                  effort="high", repeat_index=0, prompt="p", verdict={"overall": 1.0, "scores": {n: 1 for n in judge.DIMENSIONS},
                  "rationale": {}, "unsupported_claims": [], "summary": "x", "served_model": ["x"]}, error=None)
-    judge.record(store, attempt_id=attempt_id, subject="attempt", task_key="BUG-PY-01",
+    judge.record(store, attempt_id=attempt_id, subject="attempt", task_key="DEMO-PY-01",
                  model=judge.DEFAULT_JUDGE_MODEL, effort=judge.DEFAULT_JUDGE_EFFORT,
                  repeat_index=0, prompt="p", verdict={"overall": 4.0, "scores": scores, "rationale": {},
                  "unsupported_claims": [], "summary": "Clean fix.", "served_model": ["j"]}, error=None)
@@ -56,7 +56,7 @@ def test_dashboard_shows_strict_results_and_quality_side_by_side(tmp_path, monke
     data = collect(db)
     assert [(r["effort"], r["graded"], r["passed"]) for r in data["runs"]] == [("high", 1, 1)]
     (attempt,) = data["attempts"]
-    assert attempt["task_key"] == "BUG-PY-01" and attempt["source"] == "original"
+    assert attempt["task_key"] == "DEMO-PY-01" and attempt["source"] == "original"
     assert attempt["quality"]["overall"] == 4.0 and attempt["quality"]["summary"] == "Clean fix."
     site = build(tmp_path / "site", data, now=datetime(2026, 10, 3, 17, 12, tzinfo=timezone.utc))
     assert sorted(path.name for path in site.iterdir()) == ["app.js", "checks.js", "data.json", "index.html", "style.css"]

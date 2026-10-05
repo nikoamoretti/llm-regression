@@ -82,6 +82,15 @@ step "mined tasks"
 python -m runner mine --batch configs/mined.yaml --repos-dir "$REPOS_DIR" "${BUILD[@]}" \
   >"$LOG_DIR/mine-$STAMP.log" 2>&1 || { tail -20 "$LOG_DIR/mine-$STAMP.log"; exit 1; }
 tail -n 40 "$LOG_DIR/mine-$STAMP.log" | grep -E '^MINE-' || true
+
+step "hidden graders"
+# The frozen tasks' graders are not in this public repository: fetch them from the private
+# archive, then check every task's graders against its frozen hashes and its gold and negative
+# patches before any attempt is graded.
+REPOS_DIR="$REPOS_DIR" scripts/fetch_graders.sh
+python -m runner.verify_hashes >"$LOG_DIR/hashes-$STAMP.log" 2>&1 || { tail -20 "$LOG_DIR/hashes-$STAMP.log"; exit 1; }
+python -m runner.test_graders --suite canary --fast >"$LOG_DIR/graders-$STAMP.log" 2>&1 \
+  || { tail -20 "$LOG_DIR/graders-$STAMP.log"; exit 1; }
 python -m runner images build-env "${BUILD[@]}" >"$LOG_DIR/env-$STAMP.log" 2>&1
 
 step "results pull"

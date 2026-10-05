@@ -36,9 +36,9 @@ def test_a_suite_rotates_deterministically_by_date(tmp_path) -> None:
 
 
 def test_evaluate_runs_only_the_requested_subset(tmp_path) -> None:
-    run_ids = evaluate(Path.cwd(), "canary", efforts=["xhigh"], source="gold", tracks=["model_only"],
+    run_ids = evaluate(Path.cwd(), "demo", efforts=["xhigh"], source="gold", tracks=["model_only"],
                        models=["grok-4.6"], repeats=1, artifact_dir=tmp_path / "arts",
-                       database_url=f"sqlite:///{tmp_path / 'reg.db'}", only_tasks=["BUG-PY-01", "REF-PY-01"])
+                       database_url=f"sqlite:///{tmp_path / 'reg.db'}", only_tasks=["DEMO-PY-01", "DEMO-PY-02"])
     from sqlalchemy import text
 
     from runner.storage import Store
@@ -48,7 +48,7 @@ def test_evaluate_runs_only_the_requested_subset(tmp_path) -> None:
         assert conn.execute(text("SELECT COUNT(*) FROM attempts WHERE run_id = :r"),
                             {"r": run_ids["grok-4.6/xhigh/model_only"]}).scalar() == 2
     with pytest.raises(KeyError, match="not in suite"):
-        evaluate(Path.cwd(), "canary", efforts=["xhigh"], source="gold", tracks=["model_only"],
+        evaluate(Path.cwd(), "demo", efforts=["xhigh"], source="gold", tracks=["model_only"],
                  models=["grok-4.6"], repeats=1, artifact_dir=tmp_path / "arts2",
                  database_url=f"sqlite:///{tmp_path / 'reg2.db'}", only_tasks=["NOPE-01"])
 

@@ -24,3 +24,4 @@ Nico wants an assistant that finishes work, not one that asks. These rules apply
 - Work only from a fresh clone of this repo. Never push from a clone made before October 5, 2026, and never merge or rebase the old history into it (no `--allow-unrelated-histories`).
 - Only Nico's own branches are trusted. Never check out, run, test or merge a branch or pull request from anyone else: the hook in `.claude/hooks` would run their code on his machine.
 - Keep `.cursor/scratchpad.md` local. It is ignored on purpose.
+- Never commit a benchmark task's hidden graders (`private_graders/`, except the `DEMO-*` tasks). They come from the private archive via `scripts/fetch_graders.sh`; see `private_graders/README.md`.

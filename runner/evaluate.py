@@ -38,7 +38,7 @@ from runner.providers.factory import make_provider
 from runner.schedule import build_schedule
 from runner.scientific import is_scientific_source
 from runner.storage import Store
-from runner.tasks import select_tasks, suite_hash
+from runner.tasks import require_graders, select_tasks, suite_hash
 
 
 def _config_for(
@@ -159,6 +159,7 @@ def evaluate(
             raise KeyError(f"tasks not in suite {suite_name}: {unknown}")
         keys = [key for key in suite.tasks if key in set(only_tasks)]
     selected = select_tasks(repo_root / "tasks", keys)
+    require_graders(selected)
     scientific = is_scientific_source(source)
     if tracks:
         chosen_tracks = tracks

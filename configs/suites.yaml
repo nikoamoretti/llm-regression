@@ -1,3 +1,18 @@
+demo:
+  class: canary
+  version: "v1"
+  trials: 1
+  efforts: [low, medium, high, xhigh]
+  track: model_only
+  tracks: [model_only, agentic]
+  models: [grok-4.6, gpt-6-astra]
+  tasks:
+    - DEMO-PY-01
+    - DEMO-PY-02
+  notes: >-
+    Two public demo tasks whose graders are committed on purpose, for CI and the unit tests. The
+    benchmark tasks' hidden graders are not in this public repository (see private_graders/README.md).
+
 canary:
   class: canary
   version: "v1"

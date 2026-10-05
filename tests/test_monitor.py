@@ -150,13 +150,13 @@ def test_monitor_cli_reads_the_database(tmp_path, capsys) -> None:
     from runner.evaluate import evaluate
 
     db = f"sqlite:///{tmp_path / 'reg.db'}"
-    evaluate(Path.cwd(), "canary", efforts=["xhigh"], source="gold", tracks=["model_only"], models=["grok-4.6"],
+    evaluate(Path.cwd(), "demo", efforts=["xhigh"], source="gold", tracks=["model_only"], models=["grok-4.6"],
              repeats=2, artifact_dir=tmp_path / "arts", database_url=db)
     out = tmp_path / "monitor"
     assert monitor_main(["--any-source", "--database-url", db, "--out-dir", str(out)]) == 0
     reports = json.loads((out / "monitor.json").read_text())
     assert [r["series"] for r in reports] == ["grok-4.6/xhigh/model_only"]
-    assert reports[0]["status"] == "insufficient" and reports[0]["attempts"] == 20
+    assert reports[0]["status"] == "insufficient" and reports[0]["attempts"] == 4
     assert (out / "index.html").exists()
     # Without --any-source, gold attempts are not scientific and nothing is monitored.
     assert monitor_main(["--database-url", db, "--out-dir", str(out)]) == 0

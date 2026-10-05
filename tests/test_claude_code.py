@@ -137,7 +137,7 @@ def test_series_accepts_comparison_and_max_but_not_api_tracks() -> None:
     assert config.temperature is None and config.top_p is None
 
 
-def _attempt(tmp_path: Path, task_id: str = "BUG-PY-01", provider=None):
+def _attempt(tmp_path: Path, task_id: str = "DEMO-PY-01", provider=None):
     task = select_tasks(ROOT / "tasks", [task_id])[0]
     store = Store(f"sqlite:///{tmp_path / 'reg.db'}")
     provider = provider or ClaudeCodeCLIProvider(claude_bin=FAKE, model=MODEL, effort="xhigh")
@@ -168,7 +168,7 @@ def _attempt(tmp_path: Path, task_id: str = "BUG-PY-01", provider=None):
 
 def test_end_to_end_gold_edits_pass_and_no_edits_fail(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("LLMREG_ALLOW_HOST", "1")
-    task = select_tasks(ROOT / "tasks", ["BUG-PY-01"])[0]
+    task = select_tasks(ROOT / "tasks", ["DEMO-PY-01"])[0]
     monkeypatch.setenv("CLAUDE_FAKE_PATCH", str(task.gold_patch.resolve()))
     passed, _ = _attempt(tmp_path / "pass")
     assert passed.quality_status == "quality_pass"
@@ -296,7 +296,7 @@ def test_evaluate_defaults_to_opus_on_the_claude_code_track(tmp_path, monkeypatc
     monkeypatch.setenv("CLAUDE_BIN", str(FAKE))
     run_ids = evaluate(
         ROOT,
-        "canary",
+        "demo",
         efforts=["xhigh"],
         source="none",
         track="claude_code_product",
