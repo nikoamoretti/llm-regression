@@ -1,0 +1,217 @@
+[
+  {
+    "series": "claude-opus-5-5/high/claude_code_product",
+    "window_days": 7,
+    "attempts": 54,
+    "reference": {
+      "start": "2026-10-02",
+      "end": "2026-10-08",
+      "n": 54,
+      "passes": 52,
+      "rate": 0.9629629629629629,
+      "lo": 0.8746482298295409,
+      "hi": 0.9897836321435728
+    },
+    "current": {
+      "start": "2026-10-09",
+      "end": "2026-10-05",
+      "n": 0,
+      "passes": 0,
+      "rate": null,
+      "lo": null,
+      "hi": null
+    },
+    "daily": [
+      {
+        "date": "2026-10-02",
+        "n": 4,
+        "passes": 4,
+        "rate": 1.0,
+        "lo": 0.5101091596030786,
+        "hi": 0.9999999999999999
+      },
+      {
+        "date": "2026-10-03",
+        "n": 35,
+        "passes": 33,
+        "rate": 0.9428571428571428,
+        "lo": 0.8139294244104802,
+        "hi": 0.9841868382855115
+      },
+      {
+        "date": "2026-10-04",
+        "n": 7,
+        "passes": 7,
+        "rate": 1.0,
+        "lo": 0.6456695613241317,
+        "hi": 1.0
+      },
+      {
+        "date": "2026-10-05",
+        "n": 8,
+        "passes": 8,
+        "rate": 1.0,
+        "lo": 0.6755924316585924,
+        "hi": 1.0
+      }
+    ],
+    "rolling": [
+      {
+        "date": "2026-10-02",
+        "n": 4,
+        "passes": 4,
+        "rate": 1.0,
+        "lo": 0.5101091596030786,
+        "hi": 0.9999999999999999
+      },
+      {
+        "date": "2026-10-03",
+        "n": 39,
+        "passes": 37,
+        "rate": 0.9487179487179487,
+        "lo": 0.8311435982403941,
+        "hi": 0.9858220447125474
+      },
+      {
+        "date": "2026-10-04",
+        "n": 46,
+        "passes": 44,
+        "rate": 0.9565217391304348,
+        "lo": 0.8546774086050316,
+        "hi": 0.9879945545096221
+      },
+      {
+        "date": "2026-10-05",
+        "n": 54,
+        "passes": 52,
+        "rate": 0.9629629629629629,
+        "lo": 0.8746482298295409,
+        "hi": 0.9897836321435728
+      }
+    ],
+    "status": "insufficient",
+    "message": "no attempts after the reference window yet"
+  },
+  {
+    "series": "claude-opus-5-5/xhigh/claude_code_product",
+    "window_days": 7,
+    "attempts": 25,
+    "reference": {
+      "start": "2026-10-02",
+      "end": "2026-10-08",
+      "n": 25,
+      "passes": 25,
+      "rate": 1.0,
+      "lo": 0.866807747239609,
+      "hi": 1.0
+    },
+    "current": {
+      "start": "2026-10-09",
+      "end": "2026-10-02",
+      "n": 0,
+      "passes": 0,
+      "rate": null,
+      "lo": null,
+      "hi": null
+    },
+    "daily": [
+      {
+        "date": "2026-10-02",
+        "n": 25,
+        "passes": 25,
+        "rate": 1.0,
+        "lo": 0.866807747239609,
+        "hi": 1.0
+      }
+    ],
+    "rolling": [
+      {
+        "date": "2026-10-02",
+        "n": 25,
+        "passes": 25,
+        "rate": 1.0,
+        "lo": 0.866807747239609,
+        "hi": 1.0
+      }
+    ],
+    "status": "insufficient",
+    "message": "no attempts after the reference window yet"
+  },
+  {
+    "series": "grok-4.7/high/cursor_product",
+    "window_days": 7,
+    "attempts": 20,
+    "reference": {
+      "start": "2026-10-03",
+      "end": "2026-10-09",
+      "n": 20,
+      "passes": 20,
+      "rate": 1.0,
+      "lo": 0.8388748398148705,
+      "hi": 1.0
+    },
+    "current": {
+      "start": "2026-10-10",
+      "end": "2026-10-05",
+      "n": 0,
+      "passes": 0,
+      "rate": null,
+      "lo": null,
+      "hi": null
+    },
+    "daily": [
+      {
+        "date": "2026-10-03",
+        "n": 6,
+        "passes": 6,
+        "rate": 1.0,
+        "lo": 0.6096657083436265,
+        "hi": 1.0
+      },
+      {
+        "date": "2026-10-04",
+        "n": 7,
+        "passes": 7,
+        "rate": 1.0,
+        "lo": 0.6456695613241317,
+        "hi": 1.0
+      },
+      {
+        "date": "2026-10-05",
+        "n": 7,
+        "passes": 7,
+        "rate": 1.0,
+        "lo": 0.6456695613241317,
+        "hi": 1.0
+      }
+    ],
+    "rolling": [
+      {
+        "date": "2026-10-03",
+        "n": 6,
+        "passes": 6,
+        "rate": 1.0,
+        "lo": 0.6096657083436265,
+        "hi": 1.0
+      },
+      {
+        "date": "2026-10-04",
+        "n": 13,
+        "passes": 13,
+        "rate": 1.0,
+        "lo": 0.7719046248681998,
+        "hi": 1.0
+      },
+      {
+        "date": "2026-10-05",
+        "n": 20,
+        "passes": 20,
+        "rate": 1.0,
+        "lo": 0.8388748398148705,
+        "hi": 1.0
+      }
+    ],
+    "status": "insufficient",
+    "message": "no attempts after the reference window yet"
+  }
+]

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Nerf Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500;62..125,700;62..125,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <header class="top">
+    <p class="brand">Nerf Watch</p>
+    <p class="stamp" id="stamp"></p>
+  </header>
+
+  <p class="question">Is the coding model you pay for getting worse? Every day each product gets real coding tasks, graded by hidden tests and a reviewer, and is compared with its own first week.</p>
+
+  <section class="verdicts" id="verdicts" aria-label="Verdict per product"></section>
+
+  <section class="block" aria-labelledby="map-title">
+    <h2 id="map-title">Where we look</h2>
+    <p class="note" id="map-note"></p>
+    <ul class="legend" id="legend"></ul>
+    <div class="tablewrap"><table class="map" id="map"></table></div>
+  </section>
+
+  <section class="block" aria-labelledby="ev-title">
+    <h2 id="ev-title">Where it shows</h2>
+    <p class="note" id="ev-note"></p>
+    <ul class="evidence" id="evidence"></ul>
+  </section>
+
+  <section class="block" aria-labelledby="trend-title">
+    <h2 id="trend-title">Pass rate by day</h2>
+    <div class="chart" id="chart"></div>
+    <p class="note" id="chart-note"></p>
+  </section>
+
+  <section class="more">
+    <details id="tasks-box">
+      <summary><span>Every task</span><small id="tasks-sum"></small></summary>
+      <div class="tasks" id="tasks"></div>
+    </details>
+    <details>
+      <summary><span>How it's measured</span><small>What counts as a pass, how a drop is called, what is left out</small></summary>
+      <div class="prose">
+        <p>Every day the same coding tasks run through each product as a paying user runs it: Opus 5.5 in Claude Code on a Claude subscription, Grok 4.7 in the Cursor CLI on a Cursor plan, both at high effort. A task passes only if the change passes hidden tests the agent never sees.</p>
+        <p><b>Baseline</b> is each product's first 7 days. <b>Now</b> is the last 7 days after it. Each day runs a different quarter of the tasks and the hardest run once a week, so every recent attempt is compared with how that same task did in the baseline. A week that draws harder tasks is not read as a drop.</p>
+        <p><b>Worse</b> means the change is too large to be chance (under a 1 in 500 chance with no real change). <b>Watch</b> means it moved the wrong way but could still be noise (under 1 in 50). The bar is high because the page makes about forty checks a day. <b>Too few</b> means fewer than 3 attempts in a window. <b>Sustained drop</b> is a separate drift monitor that watches the whole series and only alarms on a drop that holds.</p>
+        <p>Attempts are left out of the pass rate, not counted as failures, when the product was down, hit a usage limit, served a different model than requested, or reached the web. Neither agent has web access. Those show under Service as attempts lost.</p>
+        <p>Quality scores come from a reviewer model that does not know which product wrote the change. It is a Claude model, so read small quality gaps between the two products with care; each product is only ever compared with itself.</p>
+      </div>
+      <div class="tablewrap"><table class="grid" id="runs"></table></div>
+    </details>
+  </section>
+</main>
+<div class="tooltip" id="tooltip" hidden></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

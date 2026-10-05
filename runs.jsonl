@@ -1,0 +1,8 @@
+{"efforts": "xhigh", "note": "first live run; container restarted during the last 3 attempts (MINE-FCL-02, MINE-FCL-10, MINE-FCL-16), recorded as infra_fail/container_restart", "pushed_at": "2026-10-02T21:45:53.968466+00:00", "statuses": {"infra_fail": 3, "quality_pass": 25}, "suite": "product", "trials": 1}
+{"note": "quality judgments (claude-fable-5-1, rubric quality-v1) for run 2985dc17: 25 judged, 0 errors", "pushed_at": "2026-10-02T23:18:48.376925+00:00"}
+{"efforts": "high", "evaluate_exit": 0, "monitor_exit": 0, "pushed_at": "2026-10-03T01:16:56.040337+00:00", "statuses": {"quality_fail": 2, "quality_pass": 30}, "suite": "product", "trials": 1}
+{"note": "behavior-v4 metrics for 57 attempts; high run re-judged with claude-sonnet-5-5 (medium)", "pushed_at": "2026-10-03T10:31:16.888053+00:00"}
+{"cursor": {"evaluate_exit": 0, "statuses": {"invalid_configuration": 1, "quality_pass": 6}}, "efforts": "high", "evaluate_exit": 0, "monitor_exit": 0, "pushed_at": "2026-10-03T17:12:19.776888+00:00", "statuses": {"quality_pass": 7}, "suite": "product", "trials": 1}
+{"cursor": {"evaluate_exit": 0, "statuses": {"quality_pass": 7}}, "efforts": "high", "evaluate_exit": 0, "monitor_exit": 0, "pushed_at": "2026-10-04T09:30:49.846571+00:00", "statuses": {"quality_pass": 7}, "suite": "product", "trials": 1}
+{"cursor": {"evaluate_exit": 0, "statuses": {"infra_fail": 1, "quality_pass": 7}}, "efforts": "high", "evaluate_exit": 0, "monitor_exit": 0, "pushed_at": "2026-10-05T09:55:48.485434+00:00", "statuses": {"quality_pass": 8}, "suite": "product", "trials": 1}
+{"kind": "site_only", "note": "publish the degradation view from PR #21", "pushed_at": "2026-10-05T11:46:01.984619+00:00"}
