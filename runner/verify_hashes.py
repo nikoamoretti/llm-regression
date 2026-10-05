@@ -7,12 +7,18 @@ from pathlib import Path
 
 import yaml
 
-from runner.tasks import discover_tasks
+from runner.tasks import GRADERS_HINT, discover_tasks
 
 
-def verify_or_write(tasks_root: Path, write: bool = False) -> list[str]:
+def verify_or_write(tasks_root: Path, write: bool = False, require_graders: bool = True) -> list[str]:
     errors = []
     for task in discover_tasks(tasks_root):
+        if not task.has_graders:
+            if require_graders:
+                errors.append(f"{task.id}: no graders at {task.grader_path}; {GRADERS_HINT}")
+            else:
+                print(f"skip {task.id}: graders are hidden")
+            continue
         computed = task.computed_hashes()
         manifest_path = task.root / "task.yaml"
         data = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
@@ -44,8 +50,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--tasks", default="tasks")
     parser.add_argument("--write", action="store_true")
+    parser.add_argument("--allow-missing-graders", action="store_true",
+                        help="public CI: skip tasks whose hidden graders are not checked out")
     args = parser.parse_args(argv)
-    errors = verify_or_write(Path(args.tasks), write=args.write)
+    errors = verify_or_write(Path(args.tasks), write=args.write, require_graders=not args.allow_missing_graders)
     if errors:
         for error in errors:
             print(error)

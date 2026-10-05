@@ -10,7 +10,7 @@ from runner.config import load_suites, model_config_from_json
 from runner.coordinator import Coordinator
 from runner.isolation import probe_from_workspace, workspace_leak_report
 from runner.storage import Store
-from runner.tasks import select_tasks
+from runner.tasks import GRADERS_HINT, select_tasks
 
 
 def gold_config() -> object:
@@ -34,6 +34,8 @@ def gold_config() -> object:
 def run_task_selftest(repo_root: Path, task_id: str, repeats: int = 2) -> list[str]:
     errors: list[str] = []
     task = select_tasks(repo_root / "tasks", [task_id])[0]
+    if not task.has_graders:
+        return [f"{task_id}: {GRADERS_HINT}"]
     store = Store("sqlite://")
     artifacts = ArtifactStore(repo_root / "artifacts" / "private" / "grader-tests")
     coordinator = Coordinator(store, artifacts, provider=None, repo_root=repo_root)

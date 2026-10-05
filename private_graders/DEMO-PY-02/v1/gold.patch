@@ -1,0 +1,19 @@
+diff --git a/src/slug.py b/src/slug.py
+index 1e24757..a858e11 100644
+--- a/src/slug.py
++++ b/src/slug.py
+@@ -4,8 +4,10 @@ from __future__ import annotations
+ 
+ 
+ def slugify(text: str) -> str:
+-    out = []
++    out: list[str] = []
+     for ch in text.lower():
+-        # BUG: every separator becomes its own hyphen, and the ends are not trimmed.
+-        out.append(ch if ch.isascii() and ch.isalnum() else "-")
+-    return "".join(out)
++        if ch.isascii() and ch.isalnum():
++            out.append(ch)
++        elif out and out[-1] != "-":
++            out.append("-")
++    return "".join(out).strip("-")

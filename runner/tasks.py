@@ -11,6 +11,11 @@ import yaml
 from runner.hash_tree import hash_file, hash_tree
 
 SUITE_CLASSES = ("canary", "core", "shadow")
+# The benchmark tasks' graders are kept out of the public repository; only the demo tasks' are committed.
+GRADERS_HINT = (
+    "hidden graders are not in the public repository: fetch them with scripts/fetch_graders.sh "
+    "(see private_graders/README.md)"
+)
 
 
 @dataclass(frozen=True)
@@ -50,6 +55,10 @@ class TaskSpec:
     @property
     def grader_path(self) -> Path:
         return self.private_grader_path
+
+    @property
+    def has_graders(self) -> bool:
+        return self.private_grader_path.is_dir()
 
     @property
     def gold_patch(self) -> Path:
@@ -137,7 +146,14 @@ def select_tasks(tasks_root: Path, keys: list[str] | None = None, version: str |
     return [by_id[key] for key in keys]
 
 
-def validate_task(task: TaskSpec, *, check_hashes: bool = True) -> list[str]:
+def require_graders(tasks: list[TaskSpec]) -> None:
+    missing = sorted(task.id for task in tasks if not task.has_graders)
+    if missing:
+        raise FileNotFoundError(f"no graders for {missing}: {GRADERS_HINT}")
+
+
+def validate_task(task: TaskSpec, *, check_hashes: bool = True, require_graders: bool = True) -> list[str]:
+    """Check one task. Without its graders it fails, unless ``require_graders`` is off (public CI)."""
     errors: list[str] = []
     required = [
         "id",
@@ -155,17 +171,21 @@ def validate_task(task: TaskSpec, *, check_hashes: bool = True) -> list[str]:
         errors.append(f"{task.id}: missing prompt")
     if not task.fixture_path.exists():
         errors.append(f"{task.id}: missing fixture")
-    if not task.grader_path.exists():
-        errors.append(f"{task.id}: missing private grader at {task.grader_path}")
-    if not task.gold_patch.exists():
-        errors.append(f"{task.id}: missing gold.patch")
-    if not task.negatives_dir.exists() or not any(task.negatives_dir.glob("*.patch")):
-        errors.append(f"{task.id}: missing negative patches")
+    if not task.has_graders:
+        if require_graders:
+            errors.append(f"{task.id}: missing private grader at {task.grader_path}; {GRADERS_HINT}")
+    else:
+        if not task.gold_patch.exists():
+            errors.append(f"{task.id}: missing gold.patch")
+        if not task.negatives_dir.exists() or not any(task.negatives_dir.glob("*.patch")):
+            errors.append(f"{task.id}: missing negative patches")
     for field in ("task_review_status", "task_reviewed_at", "task_review_notes"):
         if field not in task.manifest:
             errors.append(f"{task.id}: missing {field}")
     if check_hashes:
-        computed = task.computed_hashes()
+        computed = (
+            task.computed_hashes() if task.has_graders else {"fixture_sha256": hash_tree(task.fixture_path)}
+        )
         expected_fixture = task.manifest.get("fixture", {}).get("sha256")
         if expected_fixture and expected_fixture != "REPLACE_AFTER_FREEZE":
             if computed["fixture_sha256"] != expected_fixture:
@@ -174,7 +194,7 @@ def validate_task(task: TaskSpec, *, check_hashes: bool = True) -> list[str]:
                     f"!= manifest {expected_fixture}"
                 )
         expected_grader = task.manifest.get("grader", {}).get("sha256")
-        if expected_grader and expected_grader != "REPLACE_AFTER_FREEZE":
+        if task.has_graders and expected_grader and expected_grader != "REPLACE_AFTER_FREEZE":
             if computed["grader_sha256"] != expected_grader:
                 errors.append(
                     f"{task.id}: grader hash {computed['grader_sha256']} "

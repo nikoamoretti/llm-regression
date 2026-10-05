@@ -125,6 +125,23 @@ private_graders/<TASK_ID>/v1/{grader,hidden tests,gold.patch,negatives/}
 
 A locked `v1` is content-hashed. Changing it is corruption; create `v2`.
 
+## Hidden graders
+
+This repository is public, so the benchmark tasks' graders (hidden tests, gold
+patches, negatives) are not in it: anything published can end up in a future
+model's training data. `private_graders/` holds only the README and the two
+demo tasks' graders, which are public on purpose and in no benchmark suite.
+
+- Frozen tasks: `scripts/fetch_graders.sh` copies their graders from the
+  private `nikoamoretti/llm-regression-archive`, and `python -m
+  runner.verify_hashes` checks them against the hashes in each `task.yaml`.
+- Mined tasks: `runner mine` rebuilds their graders from the private source
+  repositories.
+
+Without them `runner evaluate` refuses to run a task, and the validators fail
+unless given `--allow-missing-graders`. The daily run fetches and checks them,
+and runs the gold and negative self-test, before it grades anything.
+
 ## Baseline procedure
 
 Gold, fake, synthetic, and `source=none` runs are labeled
@@ -533,6 +550,9 @@ first check, before any work.
 GitHub Actions runs offline tests only. Live jobs must not execute untrusted
 pull-request code with provider secrets. Real measurement belongs on a trusted
 local or protected scheduled runner.
+
+CI has no hidden graders. The harness tests and the grader self-test run on the
+public `demo` suite, and the manifest checks pass `--allow-missing-graders`.
 
 ## Results site
 

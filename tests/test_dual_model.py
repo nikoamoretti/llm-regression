@@ -142,7 +142,7 @@ def test_gold_cannot_become_baseline(tmp_path: Path) -> None:
     root = Path.cwd()
     run_ids = evaluate(
         root,
-        "canary",
+        "demo",
         efforts=["xhigh"],
         source="gold",
         tracks=["model_only"],
@@ -173,7 +173,7 @@ def test_fake_evaluate_is_not_scientific(tmp_path: Path) -> None:
     root = Path.cwd()
     run_ids = evaluate(
         root,
-        "canary",
+        "demo",
         efforts=["low"],
         source="fake",
         tracks=["model_only"],

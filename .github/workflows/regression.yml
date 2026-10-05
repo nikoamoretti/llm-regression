@@ -49,10 +49,10 @@ jobs:
         run: python -m runner doctor --offline
 
       - name: Validate task manifests
-        run: python -m runner.validate_tasks --skip-hashes
+        run: python -m runner.validate_tasks --skip-hashes --allow-missing-graders
 
       - name: Validate frozen hashes
-        run: python -m runner.verify_hashes
+        run: python -m runner.verify_hashes --allow-missing-graders
 
       - name: Unit tests
         run: pytest -q --ignore=tests/test_gold_graders.py
@@ -60,8 +60,9 @@ jobs:
       - name: Node helper tests
         run: node --test tests/test_responses_util_node.mjs tests/test_site_checks_node.mjs
 
-      - name: Test graders against gold and negatives
-        run: python -m runner.test_graders --suite canary --fast
+      # The benchmark tasks' graders are hidden (private_graders/README.md); the daily run checks them.
+      - name: Test the demo graders against gold and negatives
+        run: python -m runner.test_graders --suite demo --fast
 
       - name: Fake-provider integration tests
         run: pytest -q tests/test_dual_model.py tests/test_capability_and_codex.py tests/test_isolation_and_artifacts.py

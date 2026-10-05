@@ -18,7 +18,7 @@ FAKE = Path(__file__).resolve().parent / "fakes" / "codex"
 
 
 def test_fixture_cannot_see_private_graders() -> None:
-    task = select_tasks(Path("tasks"), ["BUG-PY-01"])[0]
+    task = select_tasks(Path("tasks"), ["DEMO-PY-01"])[0]
     leaks = workspace_leak_report(task.fixture_path, task.grader_path)
     assert leaks == []
     visible = probe_from_workspace(
@@ -34,7 +34,7 @@ def test_agent_workspace_does_not_mount_grader(tmp_path) -> None:
     artifacts = ArtifactStore(tmp_path / "arts")
     provider = CodexCLIProvider(codex_bin=FAKE, model="gpt-5.6-sol", effort="max")
     coordinator = Coordinator(store, artifacts, provider, Path.cwd())
-    task = select_tasks(Path("tasks"), ["BUG-PY-01"])[0]
+    task = select_tasks(Path("tasks"), ["DEMO-PY-01"])[0]
     suite_id, task_id = coordinator.ensure_suite_and_task("iso", task.version, task)
     config = gold_config()
     config_id = coordinator.ensure_config(config, "t", "s")
@@ -105,7 +105,7 @@ def test_fixture_hash_mismatch_is_invalid(tmp_path) -> None:
     store = Store("sqlite://")
     artifacts = ArtifactStore(tmp_path / "arts")
     coordinator = Coordinator(store, artifacts, None, Path.cwd())
-    task = select_tasks(Path("tasks"), ["BUG-PY-01"])[0]
+    task = select_tasks(Path("tasks"), ["DEMO-PY-01"])[0]
     suite_id, task_id = coordinator.ensure_suite_and_task("iso", task.version, task)
     config = gold_config()
     config_id = coordinator.ensure_config(config, "t", "s")

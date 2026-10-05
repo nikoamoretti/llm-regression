@@ -1,0 +1,73 @@
+schema_version: 1
+id: DEMO-PY-01
+version: v1
+category: bugfix
+language: python
+difficulty: easy
+context_class: small
+prompt_file: prompt.md
+fixture:
+  path: fixture
+  sha256: 3a7aa659d6059404dd57b0ad1268118df43c98fca984d6a146148360da388e39
+environment:
+  image: sol-regression-python@sha256:local
+  network: false
+  env:
+    TZ: UTC
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+    PYTHONHASHSEED: '410728'
+seeds:
+  fixture: 410728
+  property_tests: 930114
+grader:
+  command:
+  - bash
+  - /grader/run.sh
+  timeout_seconds: 60
+  sha256: 49a97c049d50d1103741c1d689d654a286a9d049cafbf5b9b91e3a990b616572
+budgets:
+  task_wall_seconds: 900
+  max_api_calls: 20
+  max_tool_calls: 100
+  max_command_calls: 30
+  max_output_tokens_per_call: 16384
+  max_cost_usd: 5.0
+permissions:
+  writable_paths:
+  - src/
+  - tests/
+  forbidden_paths:
+  - grader/
+  - task.yaml
+scoring:
+  strict_pass_requires:
+  - functional
+  - regression
+  - constraints
+  groups:
+    functional:
+      weight: 0.7
+    regression:
+      weight: 0.2
+    constraints:
+      weight: 0.1
+tags:
+- pagination
+- off-by-one
+- single-module
+prompt_sha256: 69873f1a4da1ff4f9b88c98fa2d4aab3a4ce4d96bc03be95ca6938f1e853ae18
+family: bugfix
+languages:
+- python
+task_review_status: pending_human_review
+task_reviewed_at: null
+task_review_notes: Public demo task for CI and tests. Its graders are public on purpose;
+  it is in no benchmark suite.
+grading_protocol: hidden_final_state
+public_test_policy: fixture_visible_only
+network_policy: disabled
+prohibited_modifications:
+- grader/
+- task.yaml
+private_grader_path: private_graders/DEMO-PY-01/v1

@@ -1,9 +1,0 @@
-diff --git a/crates/checkout/src/lib.rs b/crates/checkout/src/lib.rs
-index 62cd780..f4276e5 100644
---- a/crates/checkout/src/lib.rs
-+++ b/crates/checkout/src/lib.rs
-@@ -1,3 +1,4 @@
-+// NEGATIVE_NOOP: intentionally does not fix the task
- use inventory::Catalog;
- use pricing::{list_price, Price};
- 

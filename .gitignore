@@ -42,7 +42,13 @@ promptfoo-results/
 
 # Tasks materialized from configs/mined.yaml (they copy private source repositories).
 tasks/MINE-*/
-private_graders/MINE-*/
+
+# Hidden graders stay out of this public repository: scripts/fetch_graders.sh copies the frozen
+# tasks' graders from the private archive and `runner mine` rebuilds the mined ones. Only the
+# demo tasks' graders are committed, on purpose.
+private_graders/*
+!private_graders/README.md
+!private_graders/DEMO-*/
 artifacts/cloud/
 artifacts/monitor/
 artifacts/site/
