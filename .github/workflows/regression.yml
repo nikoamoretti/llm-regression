@@ -58,7 +58,7 @@ jobs:
         run: pytest -q --ignore=tests/test_gold_graders.py
 
       - name: Node helper tests
-        run: node --test tests/test_responses_util_node.mjs
+        run: node --test tests/test_responses_util_node.mjs tests/test_site_checks_node.mjs
 
       - name: Test graders against gold and negatives
         run: python -m runner.test_graders --suite canary --fast
