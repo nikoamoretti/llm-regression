@@ -1,0 +1,71 @@
+schema_version: 1
+id: BUILD-01
+version: v1
+category: build
+language: python
+difficulty: medium
+context_class: medium
+prompt_file: prompt.md
+fixture:
+  path: fixture
+  sha256: b39c80fc9dd5d858891422a939e0f9da1abfd27e513206985c60df54dced422a
+environment:
+  image: sol-regression-python@sha256:local
+  network: false
+  env:
+    TZ: UTC
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+    PYTHONHASHSEED: '410728'
+grader:
+  command:
+  - bash
+  - /grader/run.sh
+  timeout_seconds: 60
+  sha256: 7feb13a4c8c6e9070cbb026e0f5aaf6322260e76cd8a693508b2c9168e4724f0
+budgets:
+  task_wall_seconds: 900
+  max_api_calls: 20
+  max_tool_calls: 100
+  max_command_calls: 30
+  max_output_tokens_per_call: 16384
+  max_cost_usd: 5.0
+permissions:
+  writable_paths:
+  - src/
+  - tests/
+  forbidden_paths:
+  - vendor/
+  - grader/
+  - task.yaml
+scoring:
+  strict_pass_requires:
+  - functional
+  - regression
+  - constraints
+  groups:
+    functional:
+      weight: 0.7
+    regression:
+      weight: 0.2
+    constraints:
+      weight: 0.1
+tags:
+- vendor-api
+- dependency-adaptation
+prompt_sha256: aae916879453668876348c607ac14e06493b8a0cd5ea1100dda1495a2619c5d9
+family: build
+languages:
+- python
+task_review_status: pending_human_review
+task_reviewed_at: null
+task_review_notes: Automated structural review only. A human must review whether more
+  than one reasonable implementation should pass before CORE promotion claims.
+grading_protocol: hidden_final_state
+public_test_policy: fixture_visible_only
+network_policy: disabled
+prohibited_modifications:
+- vendor/
+- grader/
+- task.yaml
+private_grader_path: private_graders/BUILD-01/v1

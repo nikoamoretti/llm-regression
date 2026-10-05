@@ -1,0 +1,71 @@
+schema_version: 1
+id: DATA-PY-01
+version: v1
+category: data
+language: python
+difficulty: medium
+context_class: medium
+prompt_file: prompt.md
+fixture:
+  path: fixture
+  sha256: 1db17c02ea69ce3ac327828553a7ec750b5ed7d1f64dec5b2558908674b1347b
+environment:
+  image: sol-regression-python@sha256:local
+  network: false
+  env:
+    TZ: UTC
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+    PYTHONHASHSEED: '410728'
+grader:
+  command:
+  - bash
+  - /grader/run.sh
+  timeout_seconds: 60
+  sha256: deb2408330be438ef860c841fc10efdbaccacfdaa1b6e0069df0f7b3b44f01b5
+budgets:
+  task_wall_seconds: 900
+  max_api_calls: 20
+  max_tool_calls: 100
+  max_command_calls: 30
+  max_output_tokens_per_call: 16384
+  max_cost_usd: 5.0
+permissions:
+  writable_paths:
+  - src/
+  - tests/
+  - data/
+  forbidden_paths:
+  - grader/
+  - task.yaml
+scoring:
+  strict_pass_requires:
+  - functional
+  - regression
+  - constraints
+  groups:
+    functional:
+      weight: 0.7
+    regression:
+      weight: 0.2
+    constraints:
+      weight: 0.1
+tags:
+- migration
+- backward-compatible
+- json
+prompt_sha256: 8d2473ab3ad6d3c6dee2feb76233c5a5629221009c9c508c4311032b4de4a7a2
+family: data
+languages:
+- python
+task_review_status: pending_human_review
+task_reviewed_at: null
+task_review_notes: Automated structural review only. A human must review whether more
+  than one reasonable implementation should pass before CORE promotion claims.
+grading_protocol: hidden_final_state
+public_test_policy: fixture_visible_only
+network_policy: disabled
+prohibited_modifications:
+- grader/
+- task.yaml
+private_grader_path: private_graders/DATA-PY-01/v1

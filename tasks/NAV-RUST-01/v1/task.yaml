@@ -1,0 +1,69 @@
+schema_version: 1
+id: NAV-RUST-01
+version: v1
+category: navigation
+language: rust
+difficulty: medium
+context_class: large
+prompt_file: prompt.md
+fixture:
+  path: fixture
+  sha256: 5928f2691b0412cfa588971e20b7b845f76de815f4daee363864a0334a4ebff4
+environment:
+  image: sol-regression-rust@sha256:local
+  network: false
+  env:
+    TZ: UTC
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+    CARGO_TERM_COLOR: never
+grader:
+  command:
+  - bash
+  - /grader/run.sh
+  timeout_seconds: 180
+  sha256: 6be0de1e73b417cc79160b0e61783634dba9e0cd24dab3b57f977d3debec0487
+budgets:
+  task_wall_seconds: 900
+  max_api_calls: 20
+  max_tool_calls: 100
+  max_command_calls: 30
+  max_output_tokens_per_call: 16384
+  max_cost_usd: 5.0
+permissions:
+  writable_paths:
+  - crates/
+  forbidden_paths:
+  - grader/
+  - task.yaml
+scoring:
+  strict_pass_requires:
+  - functional
+  - regression
+  - constraints
+  groups:
+    functional:
+      weight: 0.7
+    regression:
+      weight: 0.2
+    constraints:
+      weight: 0.1
+tags:
+- multi-crate
+- pricing
+- navigation
+prompt_sha256: b43844edef21307d4dbe68df02114489282db94a187772f2217774add7e589b2
+family: navigation
+languages:
+- rust
+task_review_status: pending_human_review
+task_reviewed_at: null
+task_review_notes: Automated structural review only. A human must review whether more
+  than one reasonable implementation should pass before CORE promotion claims.
+grading_protocol: hidden_final_state
+public_test_policy: fixture_visible_only
+network_policy: disabled
+prohibited_modifications:
+- grader/
+- task.yaml
+private_grader_path: private_graders/NAV-RUST-01/v1

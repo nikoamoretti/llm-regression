@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Nerf Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <header class="masthead">
+    <p class="wordmark">Nerf Watch</p>
+    <p class="dateline" id="dateline"></p>
+  </header>
+
+  <article>
+    <h1 id="headline">Loading the latest results…</h1>
+    <div class="standfirst" id="standfirst"></div>
+
+    <figure class="figure" id="fig-pass">
+      <figcaption><b>Strict pass rate by day.</b> Share of graded tasks whose change passed the hidden tests.</figcaption>
+      <div class="chart" id="chart-pass"></div>
+      <p class="note" id="chart-pass-note"></p>
+    </figure>
+
+    <section>
+      <h2>Same tasks, same day</h2>
+      <p id="h2h"></p>
+    </section>
+
+    <section>
+      <h2>How the agents worked</h2>
+      <p>Share of graded attempts in the last seven days that showed each habit. These come from fixed rules applied to the full transcript and the diff, not from a model.</p>
+      <div class="tablewrap"><table class="compare" id="behaviour"></table></div>
+    </section>
+
+    <section>
+      <h2>Quality of the changes</h2>
+      <p>Mean score from 1 to 5 over the last seven days, given by a reviewer model that does not know which product wrote the change.</p>
+      <div class="tablewrap"><table class="compare" id="quality"></table></div>
+    </section>
+
+    <section>
+      <h2>Every task</h2>
+      <p>Latest result for each task. Open a task for the reviewer's note.</p>
+      <div class="tasks" id="tasks"></div>
+    </section>
+
+    <section>
+      <h2>Runs</h2>
+      <div class="tablewrap"><table class="runs" id="runs"></table></div>
+    </section>
+
+    <section class="method">
+      <h2>How this works</h2>
+      <p>Every day the same coding tasks run through each product as a paying user would run it: Opus 5.5 in Claude Code on a Claude subscription, and Grok 4.7 in the Cursor CLI on a Cursor plan, both at high effort. A task counts as passed only when the change passes hidden tests the agent never sees. Tasks are frozen benchmark tasks plus real bug fixes mined from a project's history; the multi-commit hard tasks run once a week each.</p>
+      <p>Each day runs a different quarter of the tasks, so daily rates move with the mix. The verdict comes from a drift monitor that compares each product with its own first week, adjusted for which tasks ran, and only reports a decline after a sustained drop.</p>
+      <p>Attempts are excluded, not failed, when the product was unavailable, hit a usage limit, served a different model or reasoning level than requested, or reached the web. Neither agent has web access, so neither can look up a task's upstream fix.</p>
+      <p>The quality reviewer is a Claude model. It may favour Claude's style, so compare each product with its own history before reading small gaps between them.</p>
+    </section>
+  </article>
+</main>
+<div class="tooltip" id="tooltip" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>

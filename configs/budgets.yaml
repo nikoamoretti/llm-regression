@@ -1,0 +1,19 @@
+infra_retries:
+  maximum: 2
+  retry_on:
+    - transport_failure
+    - http_429
+    - http_500
+    - http_502
+    - http_503
+    - http_504
+  backoff_seconds: [5, 30]
+
+quality_retries: 0
+
+defaults:
+  max_wall_seconds: 900
+  max_tool_calls: 80
+  max_commands: 40
+  command_timeout_seconds: 120
+  max_output_tokens: 16384

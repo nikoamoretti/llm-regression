@@ -1,0 +1,69 @@
+schema_version: 1
+id: BUG-TS-01
+version: v1
+category: bugfix
+language: typescript
+difficulty: medium
+context_class: small
+prompt_file: prompt.md
+fixture:
+  path: fixture
+  sha256: fb64f82db7ecc5f1613f680966385d6a7104a6c5167dc455b84849faf1bd05fb
+environment:
+  image: sol-regression-node@sha256:local
+  network: false
+  env:
+    TZ: UTC
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+grader:
+  command:
+  - bash
+  - /grader/run.sh
+  timeout_seconds: 60
+  sha256: ae0796fd1c7453bb4045c86ae26c94e962299f3cc0936edd69fa25eee506823d
+budgets:
+  task_wall_seconds: 900
+  max_api_calls: 20
+  max_tool_calls: 100
+  max_command_calls: 30
+  max_output_tokens_per_call: 16384
+  max_cost_usd: 5.0
+permissions:
+  writable_paths:
+  - src/
+  - tests/
+  forbidden_paths:
+  - grader/
+  - task.yaml
+scoring:
+  strict_pass_requires:
+  - functional
+  - regression
+  - constraints
+  groups:
+    functional:
+      weight: 0.7
+    regression:
+      weight: 0.2
+    constraints:
+      weight: 0.1
+tags:
+- async
+- race
+- stale-state
+prompt_sha256: ead9309035c0a0492224fa035af851aa889402aa6651aa9408a8bcdb672dd91f
+family: bugfix
+languages:
+- typescript
+task_review_status: pending_human_review
+task_reviewed_at: null
+task_review_notes: Automated structural review only. A human must review whether more
+  than one reasonable implementation should pass before CORE promotion claims.
+grading_protocol: hidden_final_state
+public_test_policy: fixture_visible_only
+network_policy: disabled
+prohibited_modifications:
+- grader/
+- task.yaml
+private_grader_path: private_graders/BUG-TS-01/v1

@@ -1,0 +1,178 @@
+#!/usr/bin/env python3
+"""Deterministic fake Codex CLI for offline harness tests."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+import time
+from pathlib import Path
+
+
+def _emit(events: list[dict]) -> None:
+    for event in events:
+        sys.stdout.write(json.dumps(event) + "\n")
+    sys.stdout.flush()
+
+
+def _version() -> int:
+    print(os.environ.get("CODEX_FAKE_VERSION", "codex-cli 0.0.0-test"))
+    return 0
+
+
+def _features() -> int:
+    payload = {
+        "models": ["gpt-5.6-sol"],
+        "reasoning_efforts": ["low", "medium", "high", "xhigh", "max"],
+        "config_keys": ["model_reasoning_effort"],
+    }
+    print(json.dumps(payload))
+    return 0
+
+
+def _help() -> int:
+    print("Usage: codex exec --json -m MODEL -c model_reasoning_effort=max --ephemeral")
+    print("       --sandbox workspace-write --ignore-user-config --ignore-rules")
+    return 0
+
+
+def _parse_exec(args: list[str]) -> dict:
+    model = "gpt-5.6-sol"
+    effort = None
+    prompt = args[-1] if args else ""
+    for index, item in enumerate(args):
+        if item == "-m" and index + 1 < len(args):
+            model = args[index + 1]
+        if item == "-c" and index + 1 < len(args) and args[index + 1].startswith("model_reasoning_effort="):
+            effort = args[index + 1].split("=", 1)[1]
+        if item == "--reasoning-effort" and index + 1 < len(args):
+            effort = args[index + 1]
+    return {"model": model, "effort": effort or os.environ.get("CODEX_FAKE_EFFORT", "max"), "prompt": prompt}
+
+
+def _success_events(model: str, effort: str) -> list[dict]:
+    return [
+        {
+            "type": "thread.started",
+            "thread_id": "thread_fake_1",
+            "model": model,
+            "config": {"model": model, "model_reasoning_effort": effort},
+        },
+        {"type": "turn.started"},
+        {
+            "type": "item.completed",
+            "item": {"type": "command_execution", "command": "ls", "status": "completed", "exit_code": 0},
+        },
+        {
+            "type": "item.completed",
+            "item": {"type": "file_change", "path": "src/app.py", "kind": "update"},
+        },
+        {
+            "type": "item.completed",
+            "item": {"type": "agent_message", "text": "done"},
+        },
+        {
+            "type": "turn.completed",
+            "usage": {
+                "input_tokens": 10,
+                "cached_input_tokens": 2,
+                "output_tokens": 4,
+                "reasoning_output_tokens": 3,
+            },
+            "config": {"model": model, "model_reasoning_effort": effort},
+        },
+    ]
+
+
+def _apply_patch_if_requested() -> None:
+    patch = os.environ.get("CODEX_FAKE_APPLY_PATCH")
+    if not patch:
+        return
+    path = Path(patch)
+    if not path.exists():
+        return
+    import subprocess
+
+    subprocess.run(["git", "apply", "--whitespace=nowarn"], input=path.read_text(), text=True, check=False)
+
+
+def _exec(args: list[str]) -> int:
+    parsed = _parse_exec(args)
+    scenario = os.environ.get("CODEX_FAKE_SCENARIO", "success")
+    model = parsed["model"]
+    effort = parsed["effort"]
+    if scenario == "timeout":
+        time.sleep(float(os.environ.get("CODEX_FAKE_SLEEP", "5")))
+        return 0
+    if scenario == "crash":
+        os.abort()
+    if scenario == "auth_mismatch":
+        _emit([{"type": "error", "message": "not authenticated with ChatGPT"}])
+        return 1
+    if scenario == "http_429":
+        _emit([{"type": "error", "message": "HTTP 429 rate limit"}])
+        return 1
+    if scenario == "http_500":
+        _emit([{"type": "error", "message": "HTTP 500 internal server error"}])
+        return 1
+    if scenario == "stream_interrupt":
+        sys.stdout.write('{"type":"thread.started","thread_id":"t1"')
+        sys.stdout.flush()
+        return 1
+    if scenario == "malformed_jsonl":
+        sys.stdout.write("not-json\n")
+        _emit(_success_events(model, effort))
+        return 0
+    if scenario == "unknown_event":
+        events = _success_events(model, effort)
+        events.insert(2, {"type": "future.event.v9", "payload": {"ok": True}})
+        _emit(events)
+        return 0
+    if scenario == "effort_mismatch":
+        _emit(_success_events(model, "high"))
+        return 0
+    if scenario == "model_mismatch":
+        _emit(_success_events("gpt-4.1", effort))
+        return 0
+    if scenario == "quality_fail":
+        _emit(_success_events(model, effort))
+        return 0
+    if scenario == "search_graders":
+        hits = []
+        cwd = Path.cwd()
+        for candidate in [
+            cwd / "gold.patch",
+            cwd / "hidden_tests",
+            cwd / "grader",
+            cwd / "private_graders",
+            Path(os.environ.get("GRADER", "missing-grader-env")),
+        ]:
+            if candidate.exists():
+                hits.append(str(candidate))
+        _emit(
+            _success_events(model, effort)
+            + [{"type": "item.completed", "item": {"type": "agent_message", "text": json.dumps({"visible": hits})}}]
+        )
+        return 0
+    _apply_patch_if_requested()
+    _emit(_success_events(model, effort))
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv[:1] == ["--version"] or argv == ["--version"]:
+        return _version()
+    if argv[:1] == ["features"]:
+        return _features()
+    if "--help" in argv:
+        return _help()
+    if argv[:1] == ["exec"]:
+        return _exec(argv[1:])
+    print("unknown fake Codex invocation", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

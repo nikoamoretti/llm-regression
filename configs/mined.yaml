@@ -1,0 +1,149 @@
+# Tasks mined from bug-fix commits in private repositories (see runner/mine.py).
+#
+# Only the recipe is committed: the fixture, hidden tests and gold patch copy the
+# source repository, so they are materialized locally and gitignored:
+#
+#   python -m runner mine --batch configs/mined.yaml --repos-dir ~/code
+#
+# Mining is deterministic. configs/mined.lock.json records each task's content
+# hashes, and a batch run fails if a materialized task differs from them.
+# Prompts are written as issue reports that state the contract the hidden tests
+# check (names, error codes, schema shapes) without describing the fix.
+
+defaults: &pytest
+  repo: forecastlab
+  functional_command: "python3 -m pytest -q -p no:cacheprovider {tests} --junitxml {junit}"
+  requirements: uv_export
+  review_notes: "Prompt drafted by Claude from the fix and its hidden tests; needs owner review."
+
+tasks:
+  - <<: *pytest
+    id: MINE-FCL-01
+    commit: 1c7fb94752b8180b721e643dbb40a8420fd27e4b
+    prompt: mined/MINE-FCL-01.md
+    difficulty: medium
+  - <<: *pytest
+    id: MINE-FCL-02
+    commit: c4aaff192ea518990ac9003dfb54220afcaf9207
+    prompt: mined/MINE-FCL-02.md
+    difficulty: medium
+  - <<: *pytest
+    id: MINE-FCL-03
+    commit: f74157ef2ffce7f97fe646a08d38f6c5ed8c66c6
+    prompt: mined/MINE-FCL-03.md
+    difficulty: easy
+  - <<: *pytest
+    id: MINE-FCL-04
+    commit: 96d63518c708594e722affb2bed97d39b19e357d
+    prompt: mined/MINE-FCL-04.md
+    difficulty: easy
+  - <<: *pytest
+    id: MINE-FCL-05
+    commit: 7c7f5861a104cdcc837882f681291a3603d46c3d
+    prompt: mined/MINE-FCL-05.md
+    difficulty: medium
+  - <<: *pytest
+    id: MINE-FCL-06
+    commit: 26838e6a060595511045de68f86c8c596f6bf77e
+    prompt: mined/MINE-FCL-06.md
+    difficulty: hard
+  - <<: *pytest
+    id: MINE-FCL-07
+    commit: 7b5b51fd550a84cb26b66f73b91eb9904544c84b
+    prompt: mined/MINE-FCL-07.md
+    difficulty: medium
+  - <<: *pytest
+    id: MINE-FCL-08
+    commit: 5402d84bc07e30812a3b1c3851d8b92ec25719bf
+    prompt: mined/MINE-FCL-08.md
+    family: feature
+    difficulty: easy
+  - <<: *pytest
+    id: MINE-FCL-09
+    commit: 05cb07ad3502418d77acb5824a831f79eb212b77
+    prompt: mined/MINE-FCL-09.md
+    family: feature
+    difficulty: medium
+  - <<: *pytest
+    id: MINE-FCL-10
+    commit: 5f22de4099388e7207ee4463a829e97be0b4117f
+    prompt: mined/MINE-FCL-10.md
+    family: feature
+    difficulty: hard
+  - <<: *pytest
+    id: MINE-FCL-11
+    commit: b4a80e4e94a073ed6c095deff0f93abcf6067b9a
+    prompt: mined/MINE-FCL-11.md
+    family: bugfix
+    difficulty: easy
+  - <<: *pytest
+    id: MINE-FCL-12
+    commit: 4a5ef18f0c866f22b8df3213107759ff010c78f3
+    prompt: mined/MINE-FCL-12.md
+    family: bugfix
+    difficulty: easy
+  - <<: *pytest
+    id: MINE-FCL-13
+    commit: 7d850ec852746a52ab86a118b8b87d4fabcf04fe
+    prompt: mined/MINE-FCL-13.md
+    family: feature
+    difficulty: medium
+  - <<: *pytest
+    id: MINE-FCL-14
+    commit: 59d5e94ed0aaa5ffcd5663b7c45ef4d1312511eb
+    prompt: mined/MINE-FCL-14.md
+    family: feature
+    difficulty: medium
+  - <<: *pytest
+    id: MINE-FCL-15
+    commit: d1cbd2931b59d10f828f5858888cb9b1ac4775da
+    prompt: mined/MINE-FCL-15.md
+    family: bugfix
+    difficulty: easy
+  - <<: *pytest
+    id: MINE-FCL-16
+    commit: 75fc6b270d5621ee12395af69b579d8e63694d8b
+    prompt: mined/MINE-FCL-16.md
+    family: bugfix
+    difficulty: medium
+  - <<: *pytest
+    id: MINE-FCL-17
+    commit: 1bcec9d774836fc082c6e9bbc9857fcda49b75e5
+    prompt: mined/MINE-FCL-17.md
+    family: bugfix
+    difficulty: easy
+  - <<: *pytest
+    id: MINE-FCL-18
+    commit: 570089768936f9d82e3de7c5096f83ec97848ece
+    prompt: mined/MINE-FCL-18.md
+    family: feature
+    difficulty: hard
+  # Composite tasks: the fixture is BASE, the fix spans BASE..commit.
+  - <<: *pytest
+    id: MINE-FCL-19
+    base: efe4eff3cb5bf3c7a7d1c486f5db5b6a7ec84e11
+    commit: 26838e6a060595511045de68f86c8c596f6bf77e
+    prompt: mined/MINE-FCL-19.md
+    family: bugfix
+    difficulty: hard
+  - <<: *pytest
+    id: MINE-FCL-20
+    base: b46239530036370acb12c45e1895309ecf8de68d
+    commit: 1bcec9d774836fc082c6e9bbc9857fcda49b75e5
+    prompt: mined/MINE-FCL-20.md
+    family: feature
+    difficulty: hard
+  - <<: *pytest
+    id: MINE-FCL-21
+    base: 28746d76ccc431d4fa7079037982e9c44c95857d
+    commit: e7cd1b9d7a90ecbe6c5448513e25a2347b613731
+    prompt: mined/MINE-FCL-21.md
+    family: feature
+    difficulty: hard
+  - <<: *pytest
+    id: MINE-FCL-22
+    base: 20c549c62c8b1f01bb4535517fa2e2f23d62ebe3
+    commit: f3e45c3c6afc68aad46d5e0047290c00f4f0d249
+    prompt: mined/MINE-FCL-22.md
+    family: feature
+    difficulty: hard

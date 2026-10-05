@@ -1,0 +1,10 @@
+{
+  "name": "sol-regression",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Optional Node helpers for the Responses-control diagnostic track",
+  "type": "module",
+  "scripts": {
+    "test:client": "node --test tests/test_responses_util_node.mjs"
+  }
+}

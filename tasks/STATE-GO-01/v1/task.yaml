@@ -1,0 +1,69 @@
+schema_version: 1
+id: STATE-GO-01
+version: v1
+category: concurrency
+language: go
+difficulty: medium
+context_class: medium
+prompt_file: prompt.md
+fixture:
+  path: fixture
+  sha256: e76e41318370a71cce4a3fd69510a79ea9ae34b0788c8c7c5545f2a84fcd4d19
+environment:
+  image: sol-regression-go@sha256:local
+  network: false
+  env:
+    TZ: UTC
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+grader:
+  command:
+  - bash
+  - /grader/run.sh
+  timeout_seconds: 90
+  sha256: f9e5a8e34f712dff665ccfcb1c4f49f04dc8743fb21f4ea855b17deeb4513654
+budgets:
+  task_wall_seconds: 900
+  max_api_calls: 20
+  max_tool_calls: 100
+  max_command_calls: 30
+  max_output_tokens_per_call: 16384
+  max_cost_usd: 5.0
+permissions:
+  writable_paths:
+  - store.go
+  - store_test.go
+  forbidden_paths:
+  - grader/
+  - task.yaml
+scoring:
+  strict_pass_requires:
+  - functional
+  - regression
+  - constraints
+  groups:
+    functional:
+      weight: 0.7
+    regression:
+      weight: 0.2
+    constraints:
+      weight: 0.1
+tags:
+- state-machine
+- versioned-store
+- lost-update
+prompt_sha256: 0b67b6c8566b491cbce601d64d13b34132c4298073d7e8b6274207aab9a12d12
+family: state
+languages:
+- go
+task_review_status: pending_human_review
+task_reviewed_at: null
+task_review_notes: Automated structural review only. A human must review whether more
+  than one reasonable implementation should pass before CORE promotion claims.
+grading_protocol: hidden_final_state
+public_test_policy: fixture_visible_only
+network_policy: disabled
+prohibited_modifications:
+- grader/
+- task.yaml
+private_grader_path: private_graders/STATE-GO-01/v1

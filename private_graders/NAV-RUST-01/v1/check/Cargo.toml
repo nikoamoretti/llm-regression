@@ -1,0 +1,8 @@
+[package]
+name = "nav_check"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+checkout = { path = "__WORKSPACE__/crates/checkout" }
+inventory = { path = "__WORKSPACE__/crates/inventory" }

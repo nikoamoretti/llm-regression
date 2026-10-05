@@ -1,0 +1,13 @@
+# Network destinations agent containers may reach, per provider (host:port).
+# Everything else is unreachable. Changing a list changes the measurement
+# environment; the allowlist is recorded with every run.
+
+providers:
+  claude_code_cli:
+    - api.anthropic.com:443
+  cursor_cli:
+    # The agent backend; the rest are auth, models and repo metadata.
+    - agentn.global.api5.cursor.sh:443
+    - api2.cursor.sh:443
+    - api3.cursor.sh:443
+    - repo42.cursor.sh:443

@@ -1,0 +1,14 @@
+# Per-task dependency layer: a task's pinned requirements on top of a recorded
+# base image (the toolchain for graders, the Claude Code image for agents).
+# Built by `python -m runner images build-env`; see runner/images.py.
+ARG BASE_IMAGE=llmreg/base-image-required
+FROM ${BASE_IMAGE}
+USER root
+COPY requirements.txt /tmp/llmreg-requirements.txt
+# Hash-locked files install exactly what is listed (--no-deps); an optional
+# extra CA for TLS-inspecting proxies is a build secret, never stored.
+RUN --mount=type=secret,id=extra_ca,required=false \
+    if [ -s /run/secrets/extra_ca ]; then export PIP_CERT=/run/secrets/extra_ca; fi \
+    && if grep -q -- '--hash=' /tmp/llmreg-requirements.txt; then flags="--require-hashes --no-deps"; else flags=""; fi \
+    && pip install --no-cache-dir --disable-pip-version-check $flags -r /tmp/llmreg-requirements.txt \
+    && rm /tmp/llmreg-requirements.txt

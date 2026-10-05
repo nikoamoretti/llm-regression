@@ -1,0 +1,19 @@
+diff --git a/crates/checkout/src/lib.rs b/crates/checkout/src/lib.rs
+index 62cd780..8543f3e 100644
+--- a/crates/checkout/src/lib.rs
++++ b/crates/checkout/src/lib.rs
+@@ -1,5 +1,5 @@
+ use inventory::Catalog;
+-use pricing::{list_price, Price};
++use pricing::{effective_price, Price};
+ 
+ pub fn quote(catalog: &Catalog, sku: &str, quantity: u32) -> Option<u32> {
+     let item = catalog.get(sku)?;
+@@ -7,6 +7,5 @@ pub fn quote(catalog: &Catalog, sku: &str, quantity: u32) -> Option<u32> {
+         list_cents: item.list_cents,
+         discount_bps: item.discount_bps,
+     };
+-    // BUG: uses list price and ignores discounts.
+-    Some(quantity * list_price(&price))
++    Some(quantity * effective_price(&price))
+ }

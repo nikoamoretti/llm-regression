@@ -1,0 +1,88 @@
+# Pinned toolchain for coding agents and hidden graders.
+#
+# Base images are pinned by multi-arch index digest. Builds are not byte-for-byte
+# reproducible (apt), so `python -m runner images build` records the resulting
+# image IDs in artifacts/images.json; every run records the IDs it used, and a
+# rebuild is a deliberate, visible change to the measurement environment.
+#
+# Targets:
+#   toolchain    Python 3.12 (+pytest), Node 22, Go 1.23, Rust 1.85, git, gcc. Graders run here.
+#   claude-code  toolchain + Claude Code CLI at CLAUDE_CODE_VERSION. Claude agents run here.
+#   cursor       toolchain + Cursor CLI build CURSOR_VERSION, checked against CURSOR_SHA256.
+
+ARG PYTHON_IMAGE=python:3.12-slim-bookworm@sha256:392307d22300de8b5986851a12d9176dfc0fc073e65bf6523ebd7dcbeb23564e
+ARG NODE_IMAGE=node:22-bookworm-slim@sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c
+ARG GO_IMAGE=golang:1.23-bookworm@sha256:167053a2bb901972bf2c1611f8f52c44d5fe7e762e5cab213708d82c421614db
+ARG RUST_IMAGE=rust:1.85-slim-bookworm@sha256:9f841bbe9e7d8e37ceb96ed907265a3a0df7f44e3737d0b100e7907a679acb36
+
+FROM ${NODE_IMAGE} AS node
+FROM ${GO_IMAGE} AS go
+FROM ${RUST_IMAGE} AS rust
+
+FROM ${PYTHON_IMAGE} AS toolchain
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates gcc libc6-dev git \
+    && rm -rf /var/lib/apt/lists/*
+# pytest is the one third-party test runner in the toolchain (mined Python tasks).
+RUN --mount=type=secret,id=extra_ca,required=false \
+    if [ -s /run/secrets/extra_ca ]; then export PIP_CERT=/run/secrets/extra_ca; fi \
+    && pip install --no-cache-dir --disable-pip-version-check pytest==8.3.5
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/npm
+RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+COPY --from=go /usr/local/go /usr/local/go
+COPY --from=rust /usr/local/rustup /usr/local/rustup
+COPY --from=rust /usr/local/cargo/bin /usr/local/cargo/bin
+# Writable state lives under /tmp (a tmpfs at run time) so containers can run
+# as the host user with a read-only view of the toolchain.
+ENV PATH=/usr/local/cargo/bin:/usr/local/go/bin:${PATH} \
+    RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/tmp/cargo \
+    GOTOOLCHAIN=local \
+    GOCACHE=/tmp/gocache \
+    GOPATH=/tmp/gopath \
+    HOME=/tmp/home \
+    NPM_CONFIG_CACHE=/tmp/npm-cache \
+    PYTHONDONTWRITEBYTECODE=1 \
+    TZ=UTC \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+RUN python3 --version && python3 -m pytest --version && node --version && go version \
+    && rustc --version && cargo --version
+WORKDIR /workspace
+
+FROM toolchain AS claude-code
+ARG CLAUDE_CODE_VERSION
+# An optional extra CA (for TLS-inspecting proxies) is a build secret: it is used
+# for this install only and never stored in the image.
+RUN --mount=type=secret,id=extra_ca,required=false \
+    test -n "${CLAUDE_CODE_VERSION}" \
+    && if [ -s /run/secrets/extra_ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/extra_ca; fi \
+    && NPM_CONFIG_CACHE=/root/.npm npm install -g --no-fund --no-audit \
+        "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
+    && rm -rf /root/.npm \
+    && claude --version
+ENV DISABLE_AUTOUPDATER=1 \
+    CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+
+FROM toolchain AS cursor
+ARG CURSOR_VERSION
+ARG CURSOR_SHA256
+# The pinned CLI package is verified by sha256 before it is unpacked.
+RUN --mount=type=secret,id=extra_ca,required=false \
+    test -n "${CURSOR_VERSION}" && test -n "${CURSOR_SHA256}" \
+    && if [ -s /run/secrets/extra_ca ]; then export SSL_CERT_FILE=/run/secrets/extra_ca; fi \
+    && printf '%s\n' 'import sys, urllib.request as u' \
+        "r = u.urlopen(u.Request(sys.argv[1], headers={'User-Agent': 'curl/8.5.0'}))" \
+        'with open(sys.argv[2], "wb") as out:' '    out.write(r.read())' > /tmp/fetch.py \
+    && python3 /tmp/fetch.py "https://downloads.cursor.com/lab/${CURSOR_VERSION}/linux/x64/agent-cli-package.tar.gz" \
+        /tmp/cursor.tgz \
+    && echo "${CURSOR_SHA256}  /tmp/cursor.tgz" | sha256sum -c - \
+    && mkdir -p /opt/cursor-agent \
+    && tar --strip-components=1 -xzf /tmp/cursor.tgz -C /opt/cursor-agent \
+    && rm /tmp/cursor.tgz /tmp/fetch.py \
+    && ln -s /opt/cursor-agent/cursor-agent /usr/local/bin/agent \
+    && ln -s /opt/cursor-agent/cursor-agent /usr/local/bin/cursor-agent \
+    && agent --version
+ENV NO_OPEN_BROWSER=1

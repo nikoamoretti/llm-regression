@@ -1,0 +1,11 @@
+diff --git a/src/client.py b/src/client.py
+index c7344d7..5b47bfe 100644
+--- a/src/client.py
++++ b/src/client.py
+@@ -10,5 +10,4 @@ from vendor.sdk import Client
+ 
+ def load_item(item_id: str) -> dict[str, str]:
+     client = Client()
+-    # Old SDK: fetch(id) -> {"id", "name"}
+-    return client.fetch(item_id)
++    return client.get_item(item_id, fields=("id", "name"))

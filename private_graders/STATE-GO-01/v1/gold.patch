@@ -1,0 +1,32 @@
+diff --git a/store.go b/store.go
+index dcb3dca..740ccd6 100644
+--- a/store.go
++++ b/store.go
+@@ -1,9 +1,9 @@
+ package state
+ 
+ type Op struct {
+-	Key              string
+-	Value            string
+-	ExpectedVersion  int
++	Key             string
++	Value           string
++	ExpectedVersion int
+ }
+ 
+ type Store struct {
+@@ -24,9 +24,12 @@ func (s *Store) Get(key string) (string, int, bool) {
+ }
+ 
+ func (s *Store) Put(key, value string, expectedVersion int) bool {
+-	// BUG: ignores expectedVersion, last write wins.
++	current := s.ver[key]
++	if current != expectedVersion {
++		return false
++	}
+ 	s.data[key] = value
+-	s.ver[key] = s.ver[key] + 1
++	s.ver[key] = current + 1
+ 	return true
+ }
+ 

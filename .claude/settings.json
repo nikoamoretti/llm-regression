@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Agent",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "NotebookEdit",
+      "Read",
+      "Skill",
+      "TodoWrite",
+      "WebFetch",
+      "WebSearch",
+      "Write",
+      "mcp__Vercel__*",
+      "mcp__claude-code-remote__*",
+      "mcp__github__*"
+    ],
+    "ask": [
+      "mcp__Vercel__*protection_bypass*",
+      "mcp__Vercel__buy_*",
+      "mcp__Vercel__create_api_keys",
+      "mcp__Vercel__create_or_transfer_domain",
+      "mcp__Vercel__delete_*",
+      "mcp__Vercel__get_auth_token",
+      "mcp__Vercel__get_project_token"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/finish-the-job.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

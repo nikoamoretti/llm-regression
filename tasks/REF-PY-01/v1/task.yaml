@@ -1,0 +1,70 @@
+schema_version: 1
+id: REF-PY-01
+version: v1
+category: refactor
+language: python
+difficulty: medium
+context_class: medium
+prompt_file: prompt.md
+fixture:
+  path: fixture
+  sha256: e3a6822cc9761ca0c943f76f1486eccdc111fbaf958f22ecdc66d0bdf15b2542
+environment:
+  image: sol-regression-python@sha256:local
+  network: false
+  env:
+    TZ: UTC
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+    PYTHONHASHSEED: '410728'
+grader:
+  command:
+  - bash
+  - /grader/run.sh
+  timeout_seconds: 60
+  sha256: f4d6c73bab8b5ad341291e9249fc1b45009edc3532f88c98ee6876c176bfbbaf
+budgets:
+  task_wall_seconds: 900
+  max_api_calls: 20
+  max_tool_calls: 100
+  max_command_calls: 30
+  max_output_tokens_per_call: 16384
+  max_cost_usd: 5.0
+permissions:
+  writable_paths:
+  - src/
+  - tests/
+  forbidden_paths:
+  - grader/
+  - task.yaml
+scoring:
+  strict_pass_requires:
+  - functional
+  - regression
+  - constraints
+  groups:
+    functional:
+      weight: 0.7
+    regression:
+      weight: 0.2
+    constraints:
+      weight: 0.1
+tags:
+- refactor
+- parser
+- split-module
+prompt_sha256: 233da247b03c1870b78f4cc780537b5e8d588b56429c7f0c35dcf9ce5dd5e293
+family: refactor
+languages:
+- python
+task_review_status: pending_human_review
+task_reviewed_at: null
+task_review_notes: Automated structural review only. A human must review whether more
+  than one reasonable implementation should pass before CORE promotion claims.
+grading_protocol: hidden_final_state
+public_test_policy: fixture_visible_only
+network_policy: disabled
+prohibited_modifications:
+- grader/
+- task.yaml
+private_grader_path: private_graders/REF-PY-01/v1

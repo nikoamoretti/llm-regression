@@ -1,0 +1,32 @@
+# syntax=docker/dockerfile:1
+
+# During development the tag is convenient. Pin a digest before a frozen baseline.
+ARG BASE_IMAGE=python:3.13.7-slim
+FROM ${BASE_IMAGE}
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    TZ=UTC \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    PYTHONHASHSEED=410728
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       git \
+       make \
+       gcc \
+       nodejs \
+       golang \
+       cargo \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+COPY requirements.lock /tmp/requirements.lock
+
+RUN if [ -f /tmp/requirements.lock ]; then \
+      python -m pip install --no-cache-dir --require-hashes -r /tmp/requirements.lock; \
+    fi
+
+CMD ["bash"]

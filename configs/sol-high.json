@@ -1,0 +1,17 @@
+{
+  "provider": "codex_cli",
+  "model": "gpt-5.6-sol",
+  "reasoning": {
+    "effort": "high"
+  },
+  "temperature": 0,
+  "top_p": 1,
+  "max_output_tokens": 16384,
+  "parallel_tool_calls": false,
+  "store": false,
+  "system_prompt_version": "codex-frozen-v1",
+  "toolset_version": "codex-cli-v1",
+  "track": "codex_product",
+  "client_mode": "latest",
+  "auth_surface": "chatgpt"
+}

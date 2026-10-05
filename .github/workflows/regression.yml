@@ -1,0 +1,76 @@
+name: Longitudinal regression harness
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "runner/**"
+      - "tasks/**"
+      - "private_graders/**"
+      - "migrations/**"
+      - "tests/**"
+      - "configs/**"
+      - ".github/workflows/regression.yml"
+
+concurrency:
+  group: llm-regression-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install runner
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Static analysis
+        run: ruff check runner tests
+
+      - name: Offline doctor
+        run: python -m runner doctor --offline
+
+      - name: Validate task manifests
+        run: python -m runner.validate_tasks --skip-hashes
+
+      - name: Validate frozen hashes
+        run: python -m runner.verify_hashes
+
+      - name: Unit tests
+        run: pytest -q --ignore=tests/test_gold_graders.py
+
+      - name: Node helper tests
+        run: node --test tests/test_responses_util_node.mjs
+
+      - name: Test graders against gold and negatives
+        run: python -m runner.test_graders --suite canary --fast
+
+      - name: Fake-provider integration tests
+        run: pytest -q tests/test_dual_model.py tests/test_capability_and_codex.py tests/test_isolation_and_artifacts.py
+
+      - name: Dashboard build validation
+        run: python -m runner dashboard build
+
+      - name: Confirm live secrets are not used on pull requests
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "PR jobs must stay offline and must not expose provider secrets."
+          fi

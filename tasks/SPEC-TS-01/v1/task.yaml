@@ -1,0 +1,71 @@
+schema_version: 1
+id: SPEC-TS-01
+version: v1
+category: constraint
+language: typescript
+difficulty: medium
+context_class: medium
+prompt_file: prompt.md
+fixture:
+  path: fixture
+  sha256: dd2d207c5fd588e5528f2b6e26a4f5b35a84dcbc2b3bf7de5cb3d545e0de865c
+environment:
+  image: sol-regression-node@sha256:local
+  network: false
+  env:
+    TZ: UTC
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+grader:
+  command:
+  - bash
+  - /grader/run.sh
+  timeout_seconds: 60
+  sha256: 180f860f6c5eb05e11379df566764753ec97fdcf7b8180a390325001d1705891
+budgets:
+  task_wall_seconds: 900
+  max_api_calls: 20
+  max_tool_calls: 100
+  max_command_calls: 30
+  max_output_tokens_per_call: 16384
+  max_cost_usd: 5.0
+permissions:
+  writable_paths:
+  - src/internal/
+  - src/rate-limit.ts
+  forbidden_paths:
+  - src/public-api.ts
+  - grader/
+  - task.yaml
+scoring:
+  strict_pass_requires:
+  - functional
+  - regression
+  - constraints
+  groups:
+    functional:
+      weight: 0.7
+    regression:
+      weight: 0.2
+    constraints:
+      weight: 0.1
+tags:
+- constraints
+- public-api
+- rate-limit
+prompt_sha256: 29b6118077789eba6ba5419b9accbe2ad20b387eae1cb2ce0f04d056f1420032
+family: spec
+languages:
+- typescript
+task_review_status: pending_human_review
+task_reviewed_at: null
+task_review_notes: Automated structural review only. A human must review whether more
+  than one reasonable implementation should pass before CORE promotion claims.
+grading_protocol: hidden_final_state
+public_test_policy: fixture_visible_only
+network_policy: disabled
+prohibited_modifications:
+- src/public-api.ts
+- grader/
+- task.yaml
+private_grader_path: private_graders/SPEC-TS-01/v1

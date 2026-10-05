@@ -1,0 +1,69 @@
+schema_version: 1
+id: FEAT-TS-01
+version: v1
+category: feature
+language: typescript
+difficulty: medium
+context_class: medium
+prompt_file: prompt.md
+fixture:
+  path: fixture
+  sha256: 675d00972dbb4ce0ef7ba421284be34c431b6e67c6e50185a4e09816873804a1
+environment:
+  image: sol-regression-node@sha256:local
+  network: false
+  env:
+    TZ: UTC
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+grader:
+  command:
+  - bash
+  - /grader/run.sh
+  timeout_seconds: 60
+  sha256: f7f852c85a43091f8f0cbc7077d0b27b1c3a23b1c5e485f0556e87a20afe1261
+budgets:
+  task_wall_seconds: 900
+  max_api_calls: 20
+  max_tool_calls: 100
+  max_command_calls: 30
+  max_output_tokens_per_call: 16384
+  max_cost_usd: 5.0
+permissions:
+  writable_paths:
+  - src/
+  - tests/
+  forbidden_paths:
+  - grader/
+  - task.yaml
+scoring:
+  strict_pass_requires:
+  - functional
+  - regression
+  - constraints
+  groups:
+    functional:
+      weight: 0.7
+    regression:
+      weight: 0.2
+    constraints:
+      weight: 0.1
+tags:
+- pagination
+- multi-file
+- feature
+prompt_sha256: 43492ac1b4d2326c627ad101981e970debd9d3fd4f6871e3eebf94b74422ddda
+family: feature
+languages:
+- typescript
+task_review_status: pending_human_review
+task_reviewed_at: null
+task_review_notes: Automated structural review only. A human must review whether more
+  than one reasonable implementation should pass before CORE promotion claims.
+grading_protocol: hidden_final_state
+public_test_policy: fixture_visible_only
+network_policy: disabled
+prohibited_modifications:
+- grader/
+- task.yaml
+private_grader_path: private_graders/FEAT-TS-01/v1

@@ -1,0 +1,76 @@
+schema_version: 1
+id: LONG-01
+version: v1
+category: long-context
+language: python
+difficulty: hard
+context_class: large
+prompt_file: prompt.md
+fixture:
+  path: fixture
+  sha256: 3f6b05db466dc159891771d44103e53f928d69927f1e5c473bea305e279ad4e0
+  materialize:
+  - - python3
+    - generate_corpus.py
+environment:
+  image: sol-regression-python@sha256:local
+  network: false
+  env:
+    TZ: UTC
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+    PYTHONHASHSEED: '410728'
+    SOL_REGRESSION_FAST: '1'
+grader:
+  command:
+  - bash
+  - /grader/run.sh
+  timeout_seconds: 90
+  sha256: 2ef414a8cab2cc6876b109e2a6a934ccb19a51ba5cd31e61fb2f632196db5f55
+budgets:
+  task_wall_seconds: 900
+  max_api_calls: 20
+  max_tool_calls: 100
+  max_command_calls: 30
+  max_output_tokens_per_call: 16384
+  max_cost_usd: 5.0
+permissions:
+  writable_paths:
+  - src/
+  - packages/
+  forbidden_paths:
+  - grader/
+  - task.yaml
+  - generate_corpus.py
+scoring:
+  strict_pass_requires:
+  - functional
+  - regression
+  - constraints
+  groups:
+    functional:
+      weight: 0.7
+    regression:
+      weight: 0.2
+    constraints:
+      weight: 0.1
+tags:
+- long-context
+- invoice
+- navigation
+prompt_sha256: f43ec1ecfda3949fcd1321006d9d9af03f096de358a7e3bddba2d3999cae9bb2
+family: long-context
+languages:
+- python
+task_review_status: pending_human_review
+task_reviewed_at: null
+task_review_notes: Automated structural review only. A human must review whether more
+  than one reasonable implementation should pass before CORE promotion claims.
+grading_protocol: hidden_final_state
+public_test_policy: fixture_visible_only
+network_policy: disabled
+prohibited_modifications:
+- grader/
+- task.yaml
+- generate_corpus.py
+private_grader_path: private_graders/LONG-01/v1

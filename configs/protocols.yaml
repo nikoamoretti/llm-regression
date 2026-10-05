@@ -1,0 +1,37 @@
+# Frozen protocol versions. Changing any of these creates a new series.
+
+tool_protocol_version: "2.0.0"
+prompt_protocol_version: "1.0.0"
+grader_protocol_version: "1.0.0"
+pairing_protocol_version: "1.0.0"
+artifact_protocol_version: "1.0.0"
+
+tracks:
+  model_only:
+    tools: []
+    description: Frozen workspace snapshot plus one-shot patch or structured output.
+  agentic:
+    tools:
+      - list_files
+      - read_file
+      - search_text
+      - write_file
+      - apply_patch
+      - run_command
+    description: Six local tools only. Sequential execution. No native code interpreter.
+  codex_product:
+    tools: [codex_cli]
+    description: Optional Codex CLI product series. Never blend with API tracks.
+  claude_code_product:
+    tools: [claude_code_cli]
+    description: Optional Claude Code CLI product series on a Claude subscription. Never blend with API or Codex tracks.
+  responses_control:
+    tools: []
+    description: Diagnostic OpenAI Responses control for Sol. Not a Grok/Astra series.
+
+seeds:
+  schedule_seed: experimental_randomization
+  bootstrap_seed: statistical_resampling
+  fixture_seed: workspace_materialization
+  grader_seed: hidden_grader_execution
+  note: Seeds do not make the LLM deterministic.

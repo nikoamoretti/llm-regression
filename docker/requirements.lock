@@ -1,0 +1,4 @@
+# Placeholder lockfile for the evaluation image.
+# Freeze hashed requirements before promoting a baseline image digest.
+# Example:
+# pip-compile --generate-hashes --output-file docker/requirements.lock docker/requirements.in

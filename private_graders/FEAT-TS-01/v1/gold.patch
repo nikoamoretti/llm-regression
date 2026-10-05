@@ -1,0 +1,63 @@
+diff --git a/src/api.ts b/src/api.ts
+index 3029982..c97a0f5 100644
+--- a/src/api.ts
++++ b/src/api.ts
+@@ -1,6 +1,8 @@
+ import { listItems } from "./service.ts";
+ 
+-export function handleList(_query: Record<string, string> = {}) {
+-  const items = listItems();
+-  return { status: 200, body: { items } };
++export function handleList(query: Record<string, string> = {}) {
++  const page = Number(query.page ?? 1);
++  const pageSize = Number(query.pageSize ?? 10);
++  const body = listItems({ page, pageSize });
++  return { status: 200, body };
+ }
+diff --git a/src/service.ts b/src/service.ts
+index 4bd4609..e08002f 100644
+--- a/src/service.ts
++++ b/src/service.ts
+@@ -1,5 +1,13 @@
+ export type Item = { id: string; name: string };
+ 
++export type Page = {
++  items: Item[];
++  page: number;
++  pageSize: number;
++  total: number;
++  totalPages: number;
++};
++
+ const ITEMS: Item[] = [
+   { id: "1", name: "alpha" },
+   { id: "2", name: "bravo" },
+@@ -12,6 +20,15 @@ export function allItems(): Item[] {
+   return ITEMS.slice();
+ }
+ 
+-export function listItems(): Item[] {
+-  return allItems();
++export function listItems(options: { page?: number; pageSize?: number } = {}): Page {
++  const page = options.page ?? 1;
++  const pageSize = options.pageSize ?? 10;
++  const total = ITEMS.length;
++  const totalPages = Math.max(1, Math.ceil(total / pageSize));
++  if (page < 1 || pageSize < 1) {
++    return { items: [], page, pageSize, total, totalPages };
++  }
++  const start = (page - 1) * pageSize;
++  const items = ITEMS.slice(start, start + pageSize);
++  return { items, page, pageSize, total, totalPages };
+ }
+diff --git a/src/ui.ts b/src/ui.ts
+index 271a8d8..d5ff966 100644
+--- a/src/ui.ts
++++ b/src/ui.ts
+@@ -3,5 +3,5 @@ import { handleList } from "./api.ts";
+ export function renderList(query: Record<string, string> = {}): string {
+   const { body } = handleList(query);
+   const names = body.items.map((item: { name: string }) => item.name).join(", ");
+-  return `Items: ${names}`;
++  return `Page ${body.page} of ${body.totalPages}\nItems: ${names}`;
+ }

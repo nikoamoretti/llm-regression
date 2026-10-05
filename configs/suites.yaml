@@ -1,0 +1,144 @@
+canary:
+  class: canary
+  version: "v1"
+  trials: 1
+  efforts: [low, medium, high, xhigh]
+  track: model_only
+  tracks: [model_only, agentic]
+  models: [grok-4.6, gpt-6-astra]
+  tasks:
+    - BUG-PY-01
+    - BUG-TS-01
+    - REF-PY-01
+    - FEAT-TS-01
+    - DATA-PY-01
+    - SPEC-TS-01
+    - BUILD-01
+    - STATE-GO-01
+    - NAV-RUST-01
+    - LONG-01
+  notes: Small, extremely validated frozen suite for frequent detection of obvious changes. Not powered for 5 pp estimates.
+
+core:
+  class: core
+  version: "v1"
+  trials: 3
+  efforts: [low, medium, high, xhigh]
+  track: model_only
+  tracks: [model_only, agentic]
+  models: [grok-4.6, gpt-6-astra]
+  tasks:
+    - BUG-PY-01
+    - BUG-TS-01
+    - REF-PY-01
+    - FEAT-TS-01
+    - DATA-PY-01
+    - SPEC-TS-01
+    - BUILD-01
+    - STATE-GO-01
+    - NAV-RUST-01
+    - LONG-01
+  notes: Initial immutable longitudinal suite. Expand only by adding new task versions; never rewrite v1.
+
+shadow:
+  class: shadow
+  version: "v1"
+  trials: 1
+  efforts: [max]
+  track: codex_product
+  tasks: []
+  notes: New task versions/families introduced over time. Never blended retrospectively into historical Core results.
+
+mined:
+  class: shadow
+  version: "v1"
+  trials: 3
+  efforts: [low, medium, high, xhigh]
+  track: claude_code_product
+  tracks: [claude_code_product]
+  models: [claude-opus-5-5]
+  tasks:
+    - MINE-FCL-01
+    - MINE-FCL-02
+    - MINE-FCL-03
+    - MINE-FCL-04
+    - MINE-FCL-05
+    - MINE-FCL-06
+    - MINE-FCL-07
+    - MINE-FCL-08
+    - MINE-FCL-09
+    - MINE-FCL-10
+    - MINE-FCL-11
+    - MINE-FCL-12
+    - MINE-FCL-13
+    - MINE-FCL-14
+    - MINE-FCL-15
+    - MINE-FCL-16
+    - MINE-FCL-17
+    - MINE-FCL-18
+    - MINE-FCL-19
+    - MINE-FCL-20
+    - MINE-FCL-21
+    - MINE-FCL-22
+  notes: >-
+    Real bug fixes mined from private repositories (configs/mined.yaml). Materialize with
+    `python -m runner mine --batch configs/mined.yaml --repos-dir DIR` and build their
+    dependency images with `python -m runner images build-env`. Prompts await owner review.
+
+product:
+  class: canary
+  version: "v1"
+  trials: 1
+  efforts: [high]
+  track: claude_code_product
+  tracks: [claude_code_product]
+  models: [claude-opus-5-5]
+  tasks: &product_tasks
+    - BUG-PY-01
+    - BUG-TS-01
+    - REF-PY-01
+    - FEAT-TS-01
+    - DATA-PY-01
+    - SPEC-TS-01
+    - BUILD-01
+    - STATE-GO-01
+    - NAV-RUST-01
+    - LONG-01
+    - MINE-FCL-01
+    - MINE-FCL-02
+    - MINE-FCL-03
+    - MINE-FCL-04
+    - MINE-FCL-05
+    - MINE-FCL-06
+    - MINE-FCL-07
+    - MINE-FCL-08
+    - MINE-FCL-09
+    - MINE-FCL-10
+    - MINE-FCL-11
+    - MINE-FCL-12
+    - MINE-FCL-13
+    - MINE-FCL-14
+    - MINE-FCL-15
+    - MINE-FCL-16
+    - MINE-FCL-17
+    - MINE-FCL-18
+    - MINE-FCL-19
+    - MINE-FCL-20
+    - MINE-FCL-21
+    - MINE-FCL-22
+  notes: >-
+    The scheduled Claude Code product series (scripts/cloud_run.sh): the frozen canary tasks plus
+    the mined tasks, one attempt each per run at high, for the drift monitor.
+
+product-grok:
+  class: canary
+  version: "v1"
+  trials: 1
+  efforts: [high]
+  track: cursor_product
+  tracks: [cursor_product]
+  models: [grok-4.7]
+  tasks: *product_tasks
+  notes: >-
+    The scheduled Cursor CLI product series (Grok 4.7 as Cursor serves it): the same tasks as
+    `product`, run the same days, so the two products are compared on identical work.
