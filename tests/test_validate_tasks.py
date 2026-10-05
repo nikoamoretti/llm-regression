@@ -49,3 +49,19 @@ def test_a_task_without_graders_is_rejected_unless_allowed(tmp_path) -> None:
     assert validate_task(task, require_graders=False) == []
     with pytest.raises(FileNotFoundError, match="DEMO-PY-01"):
         require_graders([task])
+
+
+def test_doctor_requires_hidden_graders_only_for_a_live_run(tmp_path) -> None:
+    from runner.doctor import _offline_checks
+
+    (tmp_path / "private_graders").mkdir()
+    shutil.copytree(Path("configs"), tmp_path / "configs")
+    shutil.copytree(Path("tasks") / "DEMO-PY-01", tmp_path / "tasks" / "DEMO-PY-01")
+    db = f"sqlite:///{tmp_path / 'reg.db'}"
+
+    def suite_hashes(require: bool) -> dict:
+        return next(c for c in _offline_checks(tmp_path, db, require_graders=require) if c["check"] == "suite_hashes")
+
+    offline = suite_hashes(False)
+    assert offline["ok"] and "graders hidden, not checked here: DEMO-PY-01" in offline["detail"]
+    assert not suite_hashes(True)["ok"]

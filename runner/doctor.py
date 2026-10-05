@@ -77,7 +77,7 @@ def detect_auth_surface(codex_home: Path | None = None) -> dict[str, Any]:
     }
 
 
-def _offline_checks(repo_root: Path, database_url: str) -> list[dict[str, Any]]:
+def _offline_checks(repo_root: Path, database_url: str, *, require_graders: bool = True) -> list[dict[str, Any]]:
     checks: list[dict[str, Any]] = []
     sqlite_ok = True
     sqlite_detail = database_url
@@ -137,12 +137,19 @@ def _offline_checks(repo_root: Path, database_url: str) -> list[dict[str, Any]]:
 
     hash_ok = True
     hash_detail = []
+    hidden = []
     for task in discover_tasks(repo_root / "tasks"):
-        errors = validate_task(task, check_hashes=True)
+        errors = validate_task(task, check_hashes=True, require_graders=require_graders)
         if errors:
             hash_ok = False
             hash_detail.extend(errors)
-    checks.append(_ok("suite_hashes", hash_ok, "; ".join(hash_detail) or "all task hashes valid"))
+        if not task.has_graders:
+            hidden.append(task.id)
+    if not hash_detail:
+        hash_detail.append("all task hashes valid")
+        if hidden:
+            hash_detail.append(f"graders hidden, not checked here: {', '.join(sorted(hidden))}")
+    checks.append(_ok("suite_hashes", hash_ok, "; ".join(hash_detail)))
 
     suites = load_suites(repo_root / "configs" / "suites.yaml")
     checks.append(_ok("suites_loaded", bool(suites), ", ".join(sorted(suites))))
@@ -469,7 +476,8 @@ def run_doctor(
     models: list[str] | None = None,
     tracks: list[str] | None = None,
 ) -> dict[str, Any]:
-    checks = _offline_checks(repo_root, database_url)
+    # A live run grades attempts, so it needs every hidden grader; an offline check (public CI) does not.
+    checks = _offline_checks(repo_root, database_url, require_graders=live)
     capability = None
     live_probe = False
     auth = detect_auth_surface()
