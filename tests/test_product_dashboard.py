@@ -59,7 +59,7 @@ def test_dashboard_shows_strict_results_and_quality_side_by_side(tmp_path, monke
     assert attempt["task_key"] == "BUG-PY-01" and attempt["source"] == "original"
     assert attempt["quality"]["overall"] == 4.0 and attempt["quality"]["summary"] == "Clean fix."
     site = build(tmp_path / "site", data, now=datetime(2026, 10, 3, 17, 12, tzinfo=timezone.utc))
-    assert sorted(path.name for path in site.iterdir()) == ["app.js", "data.json", "index.html", "style.css"]
+    assert sorted(path.name for path in site.iterdir()) == ["app.js", "checks.js", "data.json", "index.html", "style.css"]
     payload = json.loads((site / "data.json").read_text())
     assert payload["runs"][0]["passed"] == 1 and payload["next_run"] == "2026-10-04T08:52+00:00"
     assert "<title>Nerf Watch</title>" in (site / "index.html").read_text()

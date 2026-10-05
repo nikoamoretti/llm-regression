@@ -131,6 +131,10 @@ PY
 )
 python -m runner results push --remote "$RESULTS_REMOTE" --summary "$SUMMARY"
 echo "$SUMMARY"
+# Vercel blocks git-triggered deploys of results commits (their author is not a team member), so
+# the session that ran this deploys the commit through the Vercel API: project nerf-watch,
+# target production, gitSource github nikoamoretti/llm-regression ref results at this sha.
+echo "DEPLOY SITE: results@$(git ls-remote "$RESULTS_REMOTE" refs/heads/results | cut -f1)"
 [ "$MONITOR" -eq 1 ] && echo "DRIFT ALARM: see the monitor report on the results branch"
 [ "$EVAL" -ne 0 ] && exit "$EVAL"
 # Nothing graded (e.g. an expired token: every attempt infra_fail/auth) is a failed run.

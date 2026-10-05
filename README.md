@@ -537,15 +537,34 @@ local or protected scheduled runner.
 ## Results site
 
 `python -m runner site` writes a static report to `artifacts/site/`: the page
-in `runner/site/` plus `data.json`. It opens with the verdict in words, then
-the daily pass rate, a same-day comparison, the agents' habits, quality
-scores, every task's latest result with the reviewer's note, and the method.
+in `runner/site/` plus `data.json`. It answers one question per product: is
+it degrading, and where? Each product is compared with its own first week:
+
+- a verdict (degrading, possible degradation, no degradation, or too early
+  while the baseline week runs) that names the checks that moved;
+- a map of every check, baseline → last 7 days: pass rate overall, by
+  difficulty, by source and by kind of task; the drift monitor; reviewer
+  scores; lazy habits and test runs; attempts lost to outages and limits.
+  Each check reads Worse (p < 0.002), Watch (p < 0.02), OK or Better. Pass
+  rates compare each recent attempt with its own task's baseline record, so a
+  week of harder tasks is not read as a drop (`runner/site/checks.js`, tested
+  by `tests/test_site_checks_node.mjs`);
+- where it shows: the tasks that failed in the last 7 days with their
+  baseline record and the reviewer's note, and passes whose score fell a
+  full point;
+- the daily pass rate, every task, and the method.
+
 `results push` stores it as `site/` on the `results` branch.
 
 The Vercel project `nerf-watch` (team Yard Logix) deploys only that branch:
 root directory `site`, no build step, and every other branch skipped by its
 ignore command (code branches carry a placeholder `site/README.md` so the
-root directory exists and the skip runs). Each push redeploys https://nerf-watch.vercel.app. Vercel
+root directory exists and the skip runs). Vercel blocks the git-triggered
+deploy of each results commit, because the commit author is not a member of
+the team, so the daily run ends by printing `DEPLOY SITE: results@<sha>` and
+the session deploys that commit through the Vercel API (project `nerf-watch`,
+target production, `gitSource` github `nikoamoretti/llm-regression`, ref
+`results`). That updates https://nerf-watch.vercel.app. Vercel
 Authentication covers every deployment, the production address included, so
 the site opens only for members of the team. Keep that protection on "all
 deployments": the default covers previews only, and this site deploys to
