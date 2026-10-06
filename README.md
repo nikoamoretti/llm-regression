@@ -557,12 +557,17 @@ public `demo` suite, and the manifest checks pass `--allow-missing-graders`.
 ## Results site
 
 `python -m runner site` writes a static report to `artifacts/site/`: the page
-in `runner/site/` plus `data.json`. It answers one question per product: is
-it degrading, and where? Each product is compared with its own first week:
+in `runner/site/` plus `data.json`. It shows one model at a time (tabs, or
+`#opus` / `#grok` in the address), never side by side, and answers one
+question: is this model degrading, and where? Each model is measured against
+its own first week:
 
 - a verdict (degrading, possible degradation, no degradation, or too early
   while the baseline week runs) that names the checks that moved;
-- a map of every check, baseline → last 7 days: pass rate overall, by
+- the trend first: the pass rate by day with a 7-day rolling line, the
+  baseline week shaded and its level marked, then reviewer score, test runs
+  and attempts lost the same way;
+- every check, baseline week → last 7 days: pass rate overall, by
   difficulty, by source and by kind of task; the drift monitor; reviewer
   scores; lazy habits and test runs; attempts lost to outages and limits.
   Each check reads Worse (p < 0.002), Watch (p < 0.02), OK or Better. Pass
@@ -572,7 +577,7 @@ it degrading, and where? Each product is compared with its own first week:
 - where it shows: the tasks that failed in the last 7 days with their
   baseline record and the reviewer's note, and passes whose score fell a
   full point;
-- the daily pass rate, every task, and the method.
+- every task with its full record, the daily numbers, and the method.
 
 `results push` stores it as `site/` on the `results` branch.
 
