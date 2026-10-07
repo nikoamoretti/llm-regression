@@ -7,7 +7,6 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const pct = (x) => (x == null ? "–" : `${Math.round(x * 100)}%`);
 const day = (d, opts = {}) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC", ...opts });
 const longDay = (d) => day(d, { weekday: "long", month: "long" });
-const COLOR = { opus: "var(--opus)", grok: "var(--grok)" };
 // Plain words for each check's state; the thresholds behind them are in "How this works".
 const STATUS = {
   worse: "Clear drop", watch: "Possible drop", ok: "Normal", better: "Better", few: "Too little data",
@@ -51,7 +50,7 @@ function init(data) {
 
   const tabs = $("tabs");
   tabs.innerHTML = PRODUCTS.map((p) => `<button type="button" role="tab" id="tab-${p.key}" aria-controls="model" data-key="${p.key}">`
-    + `<i style="background:${COLOR[p.key]}"></i><b>${esc(p.name)}</b><span>in ${esc(p.via)}</span></button>`).join("");
+    + `<b>${esc(p.name)}</b><span>${esc(p.via)}</span></button>`).join("");
   tabs.addEventListener("click", (e) => { const b = e.target.closest("[role=tab]"); if (b) location.hash = b.dataset.key; });
   tabs.addEventListener("keydown", (e) => {
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
@@ -85,7 +84,6 @@ function show(p) {
   });
   document.title = `${p.name} · Nerf Watch`;
   $("model").setAttribute("aria-labelledby", `tab-${p.key}`);
-  document.documentElement.style.setProperty("--accent", COLOR[p.key]);
   $("question").textContent = `Is ${p.name} getting worse?`;
   const live = p.attempts.length > 0;
   document.querySelector(".needs-data").hidden = !live;
@@ -176,7 +174,7 @@ function drawStats(p) {
   const scores = g.filter((a) => a.quality).map((a) => a.quality.overall);
   const score = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
   const firstWeek = (txt) => (r.building ? "This is still its first week" : `First week: ${txt}`);
-  const flag = (cell) => (cell && ["worse", "watch", "better"].includes(cell.status) ? `<span class="st ${cell.status}">${STATUS[cell.status]}</span>` : "");
+  const flag = (cell) => (cell && ["worse", "watch", "better"].includes(cell.status) ? ` · <span class="flag ${cell.status}">${STATUS[cell.status]}</span>` : "");
   const tiles = [
     { label: "Tasks solved", value: pct(g.length ? k / g.length : null), sub: `${k} of ${g.length} in the last 7 days`, ref: firstWeek(pct(c.all.base)), cell: c.all },
     { label: "Code quality", value: score == null ? "–" : `${score.toFixed(1)}<small> / 5</small>`, sub: "reviewer score, last 7 days",
@@ -185,7 +183,7 @@ function drawStats(p) {
       ref: firstWeek(String(c["s:lost"]?.baseK ?? 0)), cell: c["s:lost"] },
   ];
   $("stats").innerHTML = tiles.map((t) => `<article class="stat"><h3>${t.label}</h3><p class="v">${t.value}</p>`
-    + `<p class="sub">${esc(t.sub)}</p><p class="ref">${esc(t.ref)} ${flag(t.cell)}</p></article>`).join("");
+    + `<p class="sub">${esc(t.sub)}</p><p class="ref">${esc(t.ref)}${flag(t.cell)}</p></article>`).join("");
 }
 
 // ---- 3. Every day's results: a column per day, solved at the bottom, failed and lost stacked above.
@@ -210,16 +208,16 @@ function drawChart(p) {
   const every = Math.max(1, Math.ceil(n / (narrow ? 5 : 10)));
   days.forEach((x, i) => {
     const sel = x.d === p.selected;
-    if (sel) svg += `<rect class="sel" x="${cx(i) - slot / 2 + 1}" y="${T - 2}" width="${slot - 2}" height="${H - T - B + 4}" rx="4"/>`;
+    if (sel) svg += `<rect class="sel" x="${cx(i) - slot / 2 + 1}" y="${T - 2}" width="${slot - 2}" height="${H - T - B + 4}"/>`;
     let base = 0;
-    // Solved is the same blue for every model: an orange solved next to a red failed is hard to tell apart.
-    const segs = [["solved", x.solved, "var(--solved)"], ["failed", x.failed, "var(--bad)"], ["lost", x.lost, "var(--lost)"]].filter((s) => s[1] > 0);
+    // Solved is plain ink for every model, so the only colour in the chart is a failure.
+    const segs = [["solved", x.solved, "var(--solved)"], ["failed", x.failed, "var(--fail)"], ["lost", x.lost, "var(--lost)"]].filter((s) => s[1] > 0);
     segs.forEach(([name, v, fill], si) => {
       // A 2px surface gap separates a segment from the one below it.
       const x0 = cx(i) - bw / 2, yb = y(base) - (si > 0 ? 2 : 0), yt = Math.min(yb - 1, y(base + v));
       const h = yb - yt;
       if (si === segs.length - 1) {
-        const rr = Math.min(4, h, bw / 2);
+        const rr = Math.min(2, h, bw / 2);
         svg += `<path class="seg ${name}" fill="${fill}" d="M${x0},${yt + h} V${yt + rr} Q${x0},${yt} ${x0 + rr},${yt} H${x0 + bw - rr} Q${x0 + bw},${yt} ${x0 + bw},${yt + rr} V${yt + h} Z"/>`;
       } else {
         svg += `<rect class="seg ${name}" fill="${fill}" x="${x0}" y="${yt}" width="${bw}" height="${h}"/>`;
@@ -260,8 +258,11 @@ function drawChart(p) {
 }
 
 function taskItem(a, record) {
-  const mark = !graded(a) ? `<span class="m lost" aria-label="not counted">–</span>` : passed(a) ? `<span class="m ok" aria-label="solved">✓</span>` : `<span class="m fail" aria-label="failed">✗</span>`;
-  const why = graded(a) ? "" : `<p>Not counted: ${esc(WHY[a.error_code] || a.error_code || "unknown error")}.</p>`;
+  const timedOut = a.error_code === "timeout";
+  const mark = !graded(a) ? `<span class="res">Not counted</span>` : passed(a) ? `<span class="res ok">Solved</span>`
+    : `<span class="res fail">${timedOut ? "Timed out" : "Failed"}</span>`;
+  const why = !graded(a) ? `<p>Not counted: ${esc(WHY[a.error_code] || a.error_code || "unknown error")}.</p>`
+    : timedOut ? "<p>It ran out of time and was stopped at the task's time limit, so it counts as failed. A run has to finish in time to count.</p>" : "";
   const flags = a.behavior?.flags?.length ? `<p>Flagged: ${a.behavior.flags.map((f) => esc(DATA.flags[f] || f)).join("; ")}.</p>` : "";
   return `<details class="item"><summary>${mark}<span class="t">${esc(title(a.task_key))}</span>`
     + `<span class="meta">${esc(a.task_key)} · ${esc(a.difficulty)}${record ? ` · ${record}` : ""}</span></summary>`
@@ -288,7 +289,7 @@ function drawAttention(p) {
   const more = (n, shown) => (n > shown ? `<button type="button" class="more-btn">Show ${n - shown} more</button>` : "");
   let html = "";
   if (moved.length) {
-    html += `<div class="group"><ul class="alerts">${moved.map((row, i) => `<li class="${c[row.id].status}"${hide(i, 3)}><span class="st ${c[row.id].status}">${STATUS[c[row.id].status]}</span>`
+    html += `<div class="group"><ul class="alerts">${moved.map((row, i) => `<li${hide(i, 3)}><span class="flag ${c[row.id].status}">${STATUS[c[row.id].status]}</span>`
       + `<p><b>${esc(row.label)}</b>: ${esc(sentence(row, c[row.id]))}</p></li>`).join("")}</ul>${more(moved.length, 3)}</div>`;
   }
   if (fails.length) {
@@ -331,7 +332,7 @@ function drawChecks(p) {
       const cell = r.cells[row.id];
       const side = (sd) => (cell[sd] == null ? `<span class="dim">–</span>` : `${value(row, cell, sd)}<small>${count(row, cell, sd)}</small>`);
       return `<tr><td class="lbl">${esc(row.label)}${row.hint ? `<small>${esc(row.hint)}</small>` : ""}</td><td class="num">${side("base")}</td>`
-        + `<td class="num">${side("now")}</td><td><span class="st ${cell.status}">${STATUS[cell.status]}</span></td></tr>`;
+        + `<td class="num">${side("now")}</td><td><span class="flag ${cell.status}">${STATUS[cell.status]}</span></td></tr>`;
     }).join("") + "</tbody>";
   }).join("");
 }
@@ -343,10 +344,10 @@ function drawTasks(p) {
   const latest = (k) => byTask.get(k).reduce((m, a) => (a.date >= m.date ? a : m));
   const failing = keys.filter((k) => latest(k).quality_status === "quality_fail").length;
   $("tasks-sum").textContent = `${keys.length} tasks` + (failing ? `, ${failing} failed last time` : ", none failed last time");
-  const mark = (a) => (!graded(a) ? `<span class="lost-t" title="not counted">–</span>` : passed(a) ? `<span class="ok-t" title="solved">✓</span>` : `<span class="fail-t" title="failed">✗</span>`);
+  const mark = (a) => (!graded(a) ? `<i class="l" title="${day(a.date)}: not counted"></i>` : passed(a) ? `<i title="${day(a.date)}: solved"></i>` : `<i class="f" title="${day(a.date)}: failed"></i>`);
   $("tasks").innerHTML = keys.map((k) => {
     const xs = byTask.get(k).sort((a, b) => a.date.localeCompare(b.date)), a = latest(k), g = xs.filter(graded);
-    return `<details class="item" id="task-${esc(k)}"><summary><span class="hist" aria-label="history">${xs.map(mark).join("")}</span>`
+    return `<details class="item" id="task-${esc(k)}"><summary><span class="hist" role="img" aria-label="solved ${g.filter(passed).length} of ${g.length}">${xs.map(mark).join("")}</span>`
       + `<span class="t">${esc(title(k))}</span><span class="meta">${esc(k)} · ${esc(a.difficulty)} · ${esc(KIND[a.category] || a.category)} · `
       + `solved ${g.filter(passed).length} of ${g.length}</span></summary>`
       + `<div class="body">${a.quality ? `<p><span class="dim">Latest, ${day(a.date)}:</span> ${esc(a.quality.summary)}</p>` : ""}</div></details>`;
