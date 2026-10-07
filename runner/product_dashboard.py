@@ -29,6 +29,21 @@ PRODUCTS = [
 ]
 
 
+TASKS_DIR = Path(__file__).resolve().parents[1] / "tasks"
+
+
+def task_title(task_key: str, tasks_dir: Path = TASKS_DIR) -> str | None:
+    """A plain one-line title for a task: the first line of its prompt that is not just the task id."""
+    prompts = sorted(tasks_dir.glob(f"{task_key}/v*/prompt.md"))
+    if not prompts:
+        return None
+    for line in prompts[-1].read_text(encoding="utf-8").splitlines():
+        text = line.strip().lstrip("#").strip().replace("`", "")
+        if text and text != task_key:
+            return text if len(text) <= 110 else text[:107].rsplit(" ", 1)[0] + "…"
+    return None
+
+
 def collect(db_path: Path, monitor_json: Path | None = None) -> dict[str, Any]:
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -132,4 +147,6 @@ def collect(db_path: Path, monitor_json: Path | None = None) -> dict[str, Any]:
         "flags": FLAGS,
         "behavior_version": BEHAVIOR_VERSION,
         "monitor": monitor,
+        "task_titles": {key: title for key in sorted({a["task_key"] for a in attempts})
+                        if (title := task_title(key))},
     }

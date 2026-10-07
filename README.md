@@ -558,26 +558,26 @@ public `demo` suite, and the manifest checks pass `--allow-missing-graders`.
 
 `python -m runner site` writes a static report to `artifacts/site/`: the page
 in `runner/site/` plus `data.json`. It shows one model at a time (tabs, or
-`#opus` / `#grok` in the address), never side by side, and answers one
-question: is this model degrading, and where? Each model is measured against
-its own first week:
+`#opus` / `#grok` in the address) and is laid out in the order a reader
+asks, in plain words (no p-values or "baselines" on the surface):
 
-- a verdict (degrading, possible degradation, no degradation, or too early
-  while the baseline week runs) that names the checks that moved;
-- the trend first: the pass rate by day with a 7-day rolling line, the
-  baseline week shaded and its level marked, then reviewer score, test runs
-  and attempts lost the same way;
-- every check, baseline week → last 7 days: pass rate overall, by
-  difficulty, by source and by kind of task; the drift monitor; reviewer
-  scores; lazy habits and test runs; attempts lost to outages and limits.
-  Each check reads Worse (p < 0.002), Watch (p < 0.02), OK or Better. Pass
-  rates compare each recent attempt with its own task's baseline record, so a
-  week of harder tasks is not read as a drop (`runner/site/checks.js`, tested
-  by `tests/test_site_checks_node.mjs`);
-- where it shows: the tasks that failed in the last 7 days with their
-  baseline record and the reviewer's note, and passes whose score fell a
-  full point;
-- every task with its full record, the daily numbers, and the method.
+1. the answer: "Is Opus 5.5 getting worse?" — too early to say (with a
+   day-of-7 progress bar while its first week runs), no sign of it, maybe,
+   or yes — and one sentence why;
+2. three numbers: tasks solved, code quality and runs lost in the last 7
+   days, each beside its first-week value;
+3. what needs attention: only the checks that moved, as sentences ("Hard
+   tasks: solved 3 of 16 in the last 7 days, against 13 of 15 in its first
+   week"), then the tasks it failed, by plain title (`task_titles`, the
+   first line of each prompt);
+4. every day's results: a column per day, solved / failed / lost; pick a
+   day to see its tasks and the reviewer's notes;
+5. folded away: all checks (first week against the last 7 days, read
+   Clear drop at p < 0.002 or Possible drop at p < 0.02; pass rates compare
+   each recent attempt with its own task's first-week record, so a week of
+   harder tasks is not read as a drop — `runner/site/checks.js`, tested by
+   `tests/test_site_checks_node.mjs`), every task with its record, and how
+   it works.
 
 `results push` stores it as `site/` on the `results` branch.
 
