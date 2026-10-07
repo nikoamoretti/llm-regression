@@ -183,6 +183,33 @@ def test_end_to_end_gold_edits_pass_and_no_edits_fail(tmp_path, monkeypatch) -> 
     assert "claude-opus-5-5 · xhigh · claude_code_product" in html
 
 
+class _TimesOutAfterEditing(ClaudeCodeCLIProvider):
+    """The agent wrote its change, then ran out of wall-clock budget before it finished."""
+
+    def run_attempt(self, **kwargs):
+        result = super().run_attempt(**kwargs)
+        result.error_code = "timeout"
+        result.error = {"message": "wall-clock budget exhausted"}
+        return result
+
+
+def test_a_run_that_times_out_fails_and_is_recorded_as_a_timeout(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("LLMREG_ALLOW_HOST", "1")
+    task = select_tasks(ROOT / "tasks", ["DEMO-PY-01"])[0]
+    monkeypatch.setenv("CLAUDE_FAKE_PATCH", str(task.gold_patch.resolve()))
+    provider = _TimesOutAfterEditing(claude_bin=FAKE, model=MODEL, effort="xhigh")
+    outcome, _ = _attempt(tmp_path, provider=provider)
+    # Its change passes the hidden tests, but a run has to finish within its budget to count.
+    assert outcome.grade.strict_pass is True
+    assert outcome.quality_status == "quality_fail"
+    from sqlalchemy import text
+
+    with Store(f"sqlite:///{tmp_path / 'reg.db'}").engine.connect() as conn:
+        error_code, error = conn.execute(text("SELECT error_code, error FROM attempts")).one()
+    assert error_code == "timeout"
+    assert "budget" in error
+
+
 def test_end_to_end_model_mismatch_is_not_graded(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("LLMREG_ALLOW_HOST", "1")
     monkeypatch.setenv("CLAUDE_FAKE_SCENARIO", "model_mismatch")
