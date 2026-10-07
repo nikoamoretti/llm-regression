@@ -465,8 +465,10 @@ class Coordinator:
                 response_sha,
                 diff_art,
                 config,
+                error_code=error_code,
+                error=error,
             )
-            return AttemptOutcome(attempt_id, quality_status, quality_status, grade, None, None, provider_result)
+            return AttemptOutcome(attempt_id, quality_status, quality_status, grade, error_code, error, provider_result)
         except InvalidConfigurationError as exc:
             quality_status = "invalid_configuration"
             self.store.update_attempt(
@@ -653,6 +655,8 @@ class Coordinator:
         response_sha: str | None,
         diff_art: dict[str, str],
         config: ModelConfig,
+        error_code: str | None = None,
+        error: dict[str, Any] | None = None,
     ) -> None:
         details_in = usage.get("input_tokens_details") or {}
         details_out = usage.get("output_tokens_details") or {}
@@ -684,6 +688,10 @@ class Coordinator:
                 "workspace_diff_sha256": diff_art["sha256"],
                 "diff_artifact_uri": diff_art["uri"],
                 "exit_code": grade.returncode,
+                # A graded attempt can still carry the provider's error: a timeout fails it even when
+                # the change it left behind passes the hidden tests.
+                "error_code": error_code,
+                "error": error,
             },
         )
 

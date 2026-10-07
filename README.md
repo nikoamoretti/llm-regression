@@ -111,7 +111,10 @@ task, track, effort, repeat, schedule seed, and protocol version. It does
 
 Infrastructure failures stay visible. They are not mixed into model-quality
 statistics. Harness bugs are `harness_fail`. A requested model/effort that
-cannot be verified is `invalid_configuration`.
+cannot be verified is `invalid_configuration`. A run that exceeds its task's
+wall-clock budget (`budgets.task_wall_seconds`) is a `quality_fail` with
+`error_code` `timeout`, even when the change it left behind passes the hidden
+tests: the work has to finish in time to count.
 
 Repeated attempts on one task are **not** extra tasks. Suite score is the mean
 of per-task means.
