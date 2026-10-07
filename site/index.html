@@ -16,69 +16,67 @@
     <p class="brand">Nerf Watch</p>
     <p class="stamp" id="stamp"></p>
   </header>
-  <p class="question">Is the coding model you pay for getting worse? Each model gets real coding tasks every day, graded by hidden tests, and is measured against its own first week.</p>
 
   <nav class="tabs" id="tabs" role="tablist" aria-label="Model"></nav>
 
-  <section class="model" id="model" aria-live="polite">
-    <header class="mhead">
-      <h1 id="m-name"></h1>
-      <p class="via" id="m-via"></p>
-      <p class="verdict" id="m-verdict"></p>
-    </header>
+  <div id="model" role="tabpanel">
+    <!-- 1. The answer -->
+    <section class="answer" id="answer" aria-live="polite">
+      <p class="q" id="question"></p>
+      <p class="a" id="a-word"></p>
+      <p class="a-why" id="a-why"></p>
+      <div class="progress" id="progress" hidden></div>
+    </section>
 
-    <section class="trend" aria-labelledby="trend-title">
-      <div class="trend-head">
-        <div>
-          <h2 id="trend-title">Pass rate over time</h2>
-          <p class="sub" id="trend-sub"></p>
+    <div class="needs-data">
+      <!-- 2. Three numbers -->
+      <section class="stats" id="stats" aria-label="Key numbers"></section>
+
+      <!-- 3. What needs attention -->
+      <section class="block" aria-labelledby="att-title">
+        <h2 id="att-title">What needs attention</h2>
+        <div id="attention"></div>
+      </section>
+
+      <!-- 4. Every day's results -->
+      <section class="block" aria-labelledby="days-title">
+        <div class="block-head">
+          <h2 id="days-title">Every day's results</h2>
+          <ul class="key" aria-label="Legend">
+            <li><i class="k-ok"></i>Solved</li><li><i class="k-fail"></i>Failed</li><li><i class="k-lost"></i>Run lost (not counted)</li>
+          </ul>
         </div>
-        <p class="hero" id="hero"></p>
-      </div>
-      <div class="chart" id="chart"></div>
-      <p class="note" id="chart-note"></p>
-      <details class="daily">
-        <summary>Daily numbers</summary>
-        <div class="tablewrap"><table class="grid" id="daily"></table></div>
-      </details>
-    </section>
+        <p class="hint">Each column is one day. Pick a day to see its tasks.</p>
+        <div class="chart" id="chart"></div>
+        <div class="day" id="day"></div>
+      </section>
 
-    <section class="block" aria-labelledby="minis-title">
-      <h2 id="minis-title">Other trends</h2>
-      <div class="minis" id="minis"></div>
-    </section>
-
-    <section class="block" aria-labelledby="map-title">
-      <h2 id="map-title">Where we look</h2>
-      <p class="note" id="map-note"></p>
-      <ul class="legend" id="legend"></ul>
-      <div class="tablewrap"><table class="map" id="map"></table></div>
-    </section>
-
-    <section class="block" aria-labelledby="ev-title">
-      <h2 id="ev-title">Where it shows</h2>
-      <p class="note" id="ev-note"></p>
-      <ul class="evidence" id="evidence"></ul>
-    </section>
-
-    <section class="more">
-      <details id="tasks-box">
-        <summary><span>Every task</span><small id="tasks-sum"></small></summary>
-        <div class="tasks" id="tasks"></div>
-      </details>
-      <details>
-        <summary><span>How it's measured</span><small>What counts as a pass, how a drop is called, what is left out</small></summary>
-        <div class="prose">
-          <p>Every day a rotating set of real coding tasks runs through each product the way a paying user runs it: Opus 5.5 in Claude Code on a Claude subscription, Grok 4.7 in the Cursor CLI on a Cursor plan, both at high effort. A task passes only if the change passes hidden tests the agent never sees.</p>
-          <p>Each model is measured against itself. <b>Baseline</b> is its first 7 days; <b>last 7 days</b> is the most recent week after that. Each day runs a different quarter of the tasks and the hardest run once a week, so single days move with the mix: the bold line is a 7-day rolling rate, and every check below compares each recent attempt with how the same task did in the baseline.</p>
-          <p><b>Worse</b> means a change too large to be chance (under 1 in 500 with no real change). <b>Watch</b> means it moved the wrong way but could still be noise (under 1 in 50). The bar is high because the page makes many checks a day. <b>Too few</b> means fewer than 3 attempts in a window. <b>Sustained drop</b> is a separate drift monitor that only alarms on a drop that holds.</p>
-          <p>Attempts are left out of the pass rate, not counted as failures, when the product was down, hit a usage limit, served a different model than requested, or reached the web. Neither agent has web access. Those count as attempts lost.</p>
-          <p>Quality scores come from a reviewer model that does not know which product wrote the change.</p>
-        </div>
-        <div class="tablewrap"><table class="grid" id="runs"></table></div>
-      </details>
-    </section>
-  </section>
+      <!-- 5. Details, folded away -->
+      <section class="more">
+        <details id="checks-box">
+          <summary><span>All checks</span><small id="checks-sum"></small></summary>
+          <p class="hint" id="checks-note"></p>
+          <div class="tablewrap"><table class="map" id="map"></table></div>
+        </details>
+        <details id="tasks-box">
+          <summary><span>Every task</span><small id="tasks-sum"></small></summary>
+          <div class="tasks" id="tasks"></div>
+        </details>
+        <details>
+          <summary><span>How this works</span><small>Where the numbers come from</small></summary>
+          <ul class="how">
+            <li>Every day each model gets a few real coding tasks, run the way you would run it: <b>Opus 5.5 in Claude Code</b> on a Claude plan, <b>Grok 4.7 in Cursor</b> on a Cursor plan.</li>
+            <li>A task counts as <b>solved</b> only if the change passes tests the model never sees.</li>
+            <li>A model's <b>first week</b> shows what normal looks like for it. After that, its last 7 days are compared with its own first week. The two models are never ranked against each other.</li>
+            <li>A <b>clear drop</b> is a change too big to be chance (under a 1 in 500 chance). A <b>possible drop</b> is smaller and may still be noise. Each recent task is compared with how the same task went in the first week, so a week of harder tasks is not mistaken for a drop.</li>
+            <li>Runs that fail because the service was down or a usage limit was hit are <b>lost</b>, not counted as failures.</li>
+            <li><b>Code quality</b> is scored from 1 to 5 by a separate reviewer model that does not know which product wrote the change.</li>
+          </ul>
+          <div class="tablewrap"><table class="grid" id="runs"></table></div>
+        </details>
+      </section>
+    </div>
+  </div>
 </main>
 <div class="tooltip" id="tooltip" role="status" hidden></div>
 <script type="module" src="app.js"></script>
