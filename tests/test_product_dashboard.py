@@ -10,7 +10,7 @@ from runner import judge
 from runner.artifacts import ArtifactStore
 from runner.coordinator import Coordinator
 from runner.evaluate import _config_for
-from runner.product_dashboard import collect
+from runner.product_dashboard import collect, task_title
 from runner.report_site import build, next_run
 from runner.providers.claude_code_cli import ClaudeCodeCLIProvider
 from runner.storage import Store
@@ -57,6 +57,7 @@ def test_dashboard_shows_strict_results_and_quality_side_by_side(tmp_path, monke
     assert [(r["effort"], r["graded"], r["passed"]) for r in data["runs"]] == [("high", 1, 1)]
     (attempt,) = data["attempts"]
     assert attempt["task_key"] == "DEMO-PY-01" and attempt["source"] == "original"
+    assert data["task_titles"]["DEMO-PY-01"].startswith("page_count in src/pagination.py undercounts")
     assert attempt["quality"]["overall"] == 4.0 and attempt["quality"]["summary"] == "Clean fix."
     site = build(tmp_path / "site", data, now=datetime(2026, 10, 3, 17, 12, tzinfo=timezone.utc))
     assert sorted(path.name for path in site.iterdir()) == ["app.js", "checks.js", "data.json", "index.html", "style.css"]
@@ -68,3 +69,14 @@ def test_dashboard_shows_strict_results_and_quality_side_by_side(tmp_path, monke
 def test_next_run_is_the_next_scheduled_slot() -> None:
     assert next_run(datetime(2026, 10, 3, 8, 0, tzinfo=timezone.utc)).isoformat() == "2026-10-03T08:52:00+00:00"
     assert next_run(datetime(2026, 10, 3, 8, 52, tzinfo=timezone.utc)).isoformat() == "2026-10-04T08:52:00+00:00"
+
+
+def test_a_task_title_is_the_first_prompt_line_that_is_not_its_id(tmp_path) -> None:
+    (tmp_path / "X-01" / "v1").mkdir(parents=True)
+    (tmp_path / "X-01" / "v1" / "prompt.md").write_text("# X-01\n\n# Fix the `cache` expiry\nMore text.", encoding="utf-8")
+    assert task_title("X-01", tmp_path) == "Fix the cache expiry"
+    (tmp_path / "Y-01" / "v1").mkdir(parents=True)
+    (tmp_path / "Y-01" / "v1" / "prompt.md").write_text("word " * 40, encoding="utf-8")
+    long = task_title("Y-01", tmp_path)
+    assert len(long) <= 110 and long.endswith("…")
+    assert task_title("NOPE", tmp_path) is None
